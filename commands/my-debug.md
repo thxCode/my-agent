@@ -19,7 +19,7 @@ that deserves a **versioned, tracked** spec goes through `/my-spec`'s Bug-fix pa
 
 ## Artifact — `.claude/debugs/<yyyy-mm-dd>-<title>.md`
 
-- Always **local**, never staged. 
+- Always **local**, never staged.
 - **`Status:`** — lifecycle trace; initial `Diagnosed`, then `Building` and `Built`, finally `Shipped`.
 - Branch (in `/my-build`): always **`fix/<title>`**.
 
@@ -45,6 +45,23 @@ This IS /my-build's task list.>
 ## Test Plan
 <Regression guard (fails without the fix, passes with it) + verification steps.>
 ```
+
+## Entry — root cause supplied (`/my-triage` handoff)
+
+`$ARGUMENTS` may name an existing `.claude/debugs/` artifact that **already** carries a filled **Root Cause**
+*and* a `Local guard feasible:` line. That pair is a `/my-triage` handoff: the cause was locked from the
+reporter's remote evidence, its *Reproduction / PoC* reads `Not reproducible locally — remote evidence:
+<ledger path>, round-<k>/<file>`, and *Fix Plan* / *Test Plan* are `TODO`. Read the artifact and the ledger
+round files it cites, then **start at Phase 3**, seeding any cross-check from the ledger's archived rounds
+rather than a local reproduction, which by construction does not exist. Phase 4 takes Background / PoC /
+Root Cause from the artifact, and Phase 5 fills that same file in place rather than opening a new one.
+
+- **Both markers, or the ordinary entry.** An empty Root Cause, a Root Cause with no `Local guard feasible:`
+  line, or a bug that merely arrived from an issue → Phase 1, and Phase 2 reproduces first as usual.
+- **`Local guard feasible:` shapes the Test Plan; shipping never waits on hardware.** `yes, via <mechanism>`
+  → that mechanism is the regression guard and the fix ships on it. `no — needs <hardware>` → the Test Plan
+  records the gap and names the confirmation that would close it; `/my-triage` offers that hardware round as
+  advisory, so the fix ships either way.
 
 ## Phase 1 — Frame the bug (read-only)
 
@@ -76,6 +93,11 @@ This IS /my-build's task list.>
   only once you agree or can explain the divergence; surface any unresolved disagreement to the user.
   **Record its verdict in the artifact's Root Cause.**
 - **Simple bug / neither tool available:** skip and note it.
+- **Entered through the handoff:** Phases 1 and 2 never ran, so neither trigger above is observable. Use one
+  that is — run a cross-check when the ledger's *Verdict* rests on **fewer than two** archived citations, or
+  when *Ruled Out* is empty. Seed it from the archived rounds, and treat its verdict as an **annotation**: it
+  records agreement or divergence beneath the Root Cause and never overwrites it. The cause was locked from
+  evidence this cross-check cannot see, so a disagreement is a question for the user, not a rewrite.
 
 ## Phase 4 — Write the artifact
 
@@ -91,7 +113,10 @@ This IS /my-build's task list.>
 1. Present the drafted artifact for **human review**.
 2. **Wait for explicit confirmation** — the one pivotal question of this command.
 3. Write `.claude/debugs/<yyyy-mm-dd>-<title>.md` (`date +%Y-%m-%d`; create the dir; **never stage it**). Confirm
-   the saved path.
+   the saved path. **Entered through the handoff above → write back to the artifact you were given**, at its own
+   path, filling *Fix Plan* and *Test Plan* in place. A second file would carry an empty Root Cause and no
+   `Local guard feasible:` line, so re-entering on it would take the ordinary path and ask for the local
+   reproduction that by construction does not exist.
 4. **Offer the next step** (user may decline both):
    - **Compact, then build** — emit the three-line block per
      `~/.claude/references/my-workflow/compaction.md` (its `/my-debug` focus row).

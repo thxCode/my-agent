@@ -1,7 +1,7 @@
 ---
 name: my-spec
-description: Write a KEP-style spec before coding — saves to specs/. Use to start a feature, spec out an idea, or open a tracked bug fix.
-argument-hint: "[what you want to build or fix]"
+description: Write a KEP-style spec before coding — saves to specs/. Use to start a feature, spec out an idea, open a tracked bug fix, or turn a GitHub issue into a spec.
+argument-hint: "[what you want to build or fix, or a GitHub issue]"
 ---
 
 # /my-spec
@@ -15,6 +15,13 @@ genuinely pivotal; infer the rest from context.
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Phase 1 — Gather context
+
+**`$ARGUMENTS` is a GitHub issue?** (a bare number, `#123`, `owner/repo#123`, or an issue URL) — resolve and
+read it with its comments per `~/.claude/references/my-workflow/resolve-issue.md`, then condense the body and
+the substantive comments into **one requirement: what to build or fix, and why**, plus any concrete acceptance
+hints the thread already carries. That distilled requirement is what the rest of this command works on. Don't
+classify feature vs. bug here — Phase 2 does that. Carry the issue number forward; Phase 5.3 keys the filename
+on it.
 
 Build enough understanding to write a grounded spec (following the Source-lookup order):
 
@@ -149,7 +156,7 @@ As a <user>, I want <capability>, so that <benefit>.
    - **Local only** → `.claude/specs/` — on disk, never committed; downstream `/my-*` won't stage it. `.claude/`
      is usually gitignored; if this project doesn't ignore it, suggest adding it.
 3. **Filename prefix** so specs sort sensibly:
-   - **Issue-initiated** (an issue number is in context, e.g. from `/my-spec-from-issue`) → `<dir>/<issue-number>-<title>.md`;
+   - **Issue-initiated** (Phase 1 resolved `$ARGUMENTS` to an issue) → `<dir>/<issue-number>-<title>.md`;
      also record the issue link in the spec (Summary or Motivation).
    - **Otherwise** → today's date (`date +%Y-%m-%d`) → `<dir>/<yyyy-mm-dd>-<title>.md`.
 4. **Present the drafted spec and its filename; wait for confirmation** — your approval to write.
