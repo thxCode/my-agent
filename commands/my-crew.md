@@ -57,7 +57,8 @@ orca orchestration task-create --spec "<task>" [--deps <json_array>]
 ```
 
 A task spec is read cold by an agent with none of this conversation: what to do, which paths it owns,
-what "done" means, how to verify, and what not to touch. Underspecified specs come back as `escalation`.
+what "done" means, how to verify, what not to touch, and **what to report back in `worker_done`**.
+Underspecified specs come back as `escalation`.
 
 Cap the crew at **3–5** concurrent workers, and show the user the plan — objective, tasks, agent per task,
 placement — **before spending anyone's quota.** Wait for a yes.
@@ -153,7 +154,8 @@ Reading the results:
 
 - **A timeout, or `{count:0}`, is a checkpoint — not a failure.** Coding tasks routinely run 15–60
   minutes. Keep rolling the wait unless you get `worker_done`/`escalation`, the terminal exits, or the
-  user stops you.
+  user stops you. **A wait on a worker that already reported `worker_done` never returns** — see the ⛔ in
+  Phase 6.
 - **Heartbeats and visible activity mean alive, not done.** Never stop, close, or restart a worker for
   being quiet.
 - **`question` and `escalation` are the user's to answer, not yours.** A worker blocks precisely when it
@@ -183,11 +185,17 @@ lost: verify it yourself, record it with `task-update --status … --result …`
 
 - **Same agent, immediate follow-up task** → take `worker.agent_terminal_handle` from
   `worker-show --dispatch <id>`, then `worker-start --task <next> --terminal <handle>` so Orca transfers
-  cleanup ownership.
+  cleanup ownership. **Do it immediately** — once that worker settles, Orca refuses the handle.
 - **Otherwise** → `worker-release --dispatch <id>`. Run it after **succeeded and failed alike**; release
   is post-completion cleanup, not cancellation, and it preserves output before closing.
 - **User wants the window kept** → record it with `worker-retain --dispatch <id>`. Never skip cleanup
   silently.
+
+⛔ **`send` reaches a *running* worker, not a settled one.** A worker that reported `worker_done` ended
+that turn and never calls `orchestration check` again, so `orchestration send --to dispatch:<id>` queues
+forever while the silence reads exactly like a slow worker. **The moment you want one more thing from a
+worker that already reported, read `~/.claude/references/my-workflow/settled-worker.md`** — it holds the
+tell, the two errors Orca returns, and the two recoveries.
 
 Never release on a timeout, idle TUI, heartbeat, question, escalation, or stale `worker_done`. If release
 returns `release_pending` / `release_unknown`, follow the receipt's recovery action — **don't** substitute

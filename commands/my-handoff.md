@@ -129,5 +129,14 @@ A full handoff doesn't monitor:
 per the Orca guide, `orchestration task-create` / `dispatch --inject` / `check --wait` are for supervised
 coordination and record coordinator-owned state that nobody here owns.
 
+⛔ **And `orchestration send` is not a back channel to a handed-off agent.** It is inbox mail delivered on
+that agent's **next** `orchestration check` — a call a handoff target has no reason to ever make, since it
+holds no Dispatch. So a follow-up sent this way is **queued and never read** — it sits in
+`orchestration inbox` until someone goes looking. If you need to add or correct something after handing
+off, **deliver it the same way you delivered the brief**: append to the handoff file and `terminal send`
+one line pointing at it, then read the terminal back to confirm it landed. (Inside `/my-crew`, `send`
+works only while a worker is still inside its dispatch lifecycle — see
+`~/.claude/references/my-workflow/settled-worker.md`.)
+
 **`--watch`** means supervision was wanted after all — that's **`/my-crew`**, which owns the Run and the
 completion loop. Say so and switch commands; don't half-build monitoring here.
