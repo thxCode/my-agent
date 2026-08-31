@@ -40,3 +40,9 @@ Derived from the directory, and it governs staging for the rest of the command:
 
 - `specs/` → **committed**: target edits are staged with the work.
 - `.claude/specs/`, `.claude/debugs/` → **local**: target edits land on disk but are **never staged**.
+
+## Security mode
+
+A target carrying a `Disclosure:` header line belongs to `/my-advisory`. Read that command's **Boundaries** and
+the phase matching yours before continuing: `embargoed` governs what may be written into a branch name, a commit
+message, a PR body, or anything sent to an external tool.
