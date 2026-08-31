@@ -132,9 +132,14 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
      git ls-files | grep -i pull_request_template
      ```
      - **Found** → its headings **verbatim and in order**, every one filled, its machinery kept
-       (`/kind` lines, `Fixes #`, a fenced `release-note` block). A section with nothing to say gets an
-       explicit `NONE`. Complex content as **bullets** — concise, forceful.
+       (`/kind` lines, the issue-linking line, a fenced `release-note` block). A section with nothing to
+       say gets an explicit `NONE`. Complex content as **bullets** — concise, forceful.
      - **None** → fall back to the default body below.
+     - **The issue link — pick the verb by what the PR actually finished.** GitHub auto-closes only on
+       `Fix(es|ed)` / `Close(s|d)` / `Resolve(s|d)`. Use one **only when the PR fully resolves the
+       issue**; when it merely advances one, take a non-closing verb — whichever the template teaches
+       (`Addresses`, `Relates`, `Part of`), else a plain `Addresses #<n>`. `Fixes` on partial work
+       closes what isn't done, and reopening loses the thread's triage.
    - **Match the house style** — a template names the sections, not how this project fills them. Read the
      latest merged PR (`gh pr list --state merged -L 1 --json body -q '.[0].body'`) for how much detail a
      reviewer expects and which `/kind` labels are real.
