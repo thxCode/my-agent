@@ -38,16 +38,15 @@ three come from `pull_request_read` (same `owner` / `repo` / `pullNumber`):
   COMMENTED) and the summary body.
 - **② Inline review comments** (`method: get_review_comments`) — the most actionable feedback, bound to a
   file + line. Returns review **threads** with `isResolved` / `isOutdated` **and each thread's node id
-  (`PRRT_…`)** — keep that id, you need it to resolve the thread in step 7.
+  (`PRRT_…`)** — the id a thread is resolved by.
 - **③ Issue comments** (`method: get_comments`) — the PR conversation, not tied to any line.
 
 **Page each of the three to exhaustion — they paginate independently, and 100 is a page size, not a
-ceiling.** Ask for `perPage: 100`, then keep passing `after` while the response reports another page. A PR
-under active bot review runs well past one page; stopping at the first one is the usual way comments go
-missing.
+ceiling.** Ask for `perPage: 100`, then keep passing `after` while the response reports another page.
+Stopping at the first page is the usual way comments go missing.
 
-State the count per bucket before triaging, and give step 3's table one row per collected comment — that
-number is what makes a dropped page visible.
+State the count per bucket before triaging. Step 3's verdicts must add back up to those counts — that
+sum is what makes a dropped page visible.
 
 ### 3. Triage — verify every comment against the source (the important step)
 
@@ -146,7 +145,7 @@ The re-read just handed you every thread's id (`PRRT_…`) and its comments — 
 Word each reply to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
 commits, the replies are still true.
 
-Re-read once more and confirm the end state: fixed → resolved, not-fixed → open.
+Re-read the threads you touched and confirm the end state: fixed → resolved, not-fixed → open.
 
 ### 8. Push the fixes — confirm first
 
