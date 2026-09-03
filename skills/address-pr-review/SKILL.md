@@ -1,7 +1,6 @@
 ---
 name: address-pr-review
 description: "Read the review feedback already left on a pull request, triage each comment against the actual source (real bug vs. false positive), fix the real ones surgically, keep the git history clean by folding fixes into the right commit, and close the loop by replying to / resolving threads and updating the PR. This CONSUMES existing review comments and acts on them — it is the counterpart to skills that GENERATE a review (e.g. gitnexus-pr-review, /review). Examples: \"address the review comments on this PR\", \"the bot left review comments, fix the real ones\", \"how do I handle the feedback on PR #1\", \"apply the reviewer's suggestions and clean up the git log\", \"triage the Copilot review and reply to the wrong ones\"."
-allowed-tools: "mcp__plugin_github_github__list_pull_requests, mcp__plugin_github_github__pull_request_read, mcp__plugin_github_github__add_reply_to_pull_request_comment, mcp__plugin_github_github__pull_request_review_write, Bash(git log*), Bash(git diff*), Bash(git show*), Bash(git status*), Bash(git rev-parse*), Bash(git remote*), Bash(git fetch*), Bash(git rev-list*), Bash(git blame*), Read, Grep, Glob"
 ---
 
 # Address PR review feedback
@@ -27,7 +26,7 @@ git rev-parse --abbrev-ref HEAD    # current branch name
 - Otherwise call `list_pull_requests` with `head: "<owner>:<branch>"`, `state: "open"` to find it.
 
 Then read the PR and its CI state with `pull_request_read` (same `owner` / `repo` / `pullNumber`):
-- `method: get` — title, state, reviewDecision.
+- `method: get` — title, state, reviewDecision, and `mergeableState` (step 6 picks the commit mode from it).
 - `method: get_check_runs` (and `get_status`) — which CI checks are failing.
 
 ### 2. Read ALL three kinds of feedback
@@ -79,29 +78,60 @@ go test ./<pkg>/...            # or the repo's test command
 helm template ... | grep ...   # for chart/manifest changes, prove the rendered output is valid
 ```
 
-### 6. Keep the git log pretty — fold fixes into the right commit
+### 6. Land the fixes — fixup by default, fold only when history is being rewritten anyway
 
-Inspect history first: `git log --oneline <base>..HEAD`.
+One fact decides the mode: **does this round rewrite history regardless?**
 
-- **Branch is a single commit** (or all fixes belong to the tip): `git add -A && git commit --amend --no-edit`.
-- **Fixes belong to specific earlier commits**: make targeted fixups, then autosquash. Interactive rebase
-  prompts are unavailable in this harness, so drive it non-interactively with a no-op sequence editor:
-  ```bash
-  git commit --fixup=<target-sha> -- <files>
-  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
-  ```
-- Avoid a noisy standalone "address review comments" commit unless the user wants the review trail in history.
+| Signal | Mode |
+| --- | --- |
+| The user asked to rebase onto the latest base, or the branch was already rebased this round | **fold** |
+| Step 1's `mergeableState` is `DIRTY` (conflicts) or `BEHIND` (a protection rule demands up-to-date) | **fold** |
+| Otherwise — the norm, since this skill usually runs after `/my-ship` | **fixup** |
 
-Use `git blame <file>` / `git log --oneline -- <file>` to find which commit a fix belongs to.
+State which mode you picked and why before committing; the user can override.
+
+Either mode needs the fix's owning commit: `git log --oneline <base>..HEAD`, then `git blame <file>` /
+`git log --oneline -- <file>`.
+
+**fixup — leave the fixups standing.** One per owning commit:
+
+```bash
+git commit --fixup=<target-sha> -- <files>
+```
+
+No rebase, so step 7 pushes fast-forward. An incremental reviewer (CodeRabbit, Copilot, GitHub's own
+"changes since your last review") diffs against the commits it already saw — rewriting those throws the
+baseline away and re-reviews the whole PR.
+
+**fold — squash them in.** Interactive rebase prompts are unavailable in this harness, so drive it
+non-interactively with a no-op sequence editor:
+
+```bash
+# branch is a single commit, or all fixes belong to the tip:
+git add -A && git commit --amend --no-edit
+# fixes belong to specific earlier commits:
+git commit --fixup=<target-sha> -- <files>
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+```
+
+Avoid a noisy standalone "address review comments" commit unless the user wants the review trail in history.
 
 ### 7. Push the fixes — confirm first
 
-Folding fixes via amend/rebase rewrites history, so updating the PR needs a force-push. This is
-outward-facing: **confirm with the user before pushing**, and guard against clobbering remote work.
+Updating the PR is outward-facing: **confirm with the user before pushing**, and guard against clobbering
+remote work first — in either mode:
 
 ```bash
 git fetch origin <branch>
 git rev-list --left-right --oneline HEAD...FETCH_HEAD   # ">" lines = commits only on remote — STOP and investigate
+```
+
+Then push by the mode step 6 picked:
+
+```bash
+# fixup — the branch only grew, so it fast-forwards:
+git push origin HEAD:<branch>
+# fold — history was rewritten, so it needs a lease-guarded force:
 git push --force-with-lease=<branch>:<expected-remote-sha> origin HEAD:<branch>
 ```
 
@@ -133,3 +163,8 @@ fixed → resolved, not-fixed → open.
 
 End with: what was fixed (and where), what was rejected as a false positive (and why), the resulting
 git history, and any items deferred to the user. Be explicit about anything not yet pushed.
+
+After a **fixup** run, name the fixups still standing and where they get folded: a repo that squash-merges
+absorbs them at merge, so nothing more is needed; a repo that rebase- or merge-commits needs them folded
+before merge — `/my-ship` step 5 does exactly that, or by hand with
+`GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>`.
