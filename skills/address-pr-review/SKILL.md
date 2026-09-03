@@ -38,10 +38,16 @@ three come from `pull_request_read` (same `owner` / `repo` / `pullNumber`):
   COMMENTED) and the summary body.
 - **② Inline review comments** (`method: get_review_comments`) — the most actionable feedback, bound to a
   file + line. Returns review **threads** with `isResolved` / `isOutdated` **and each thread's node id
-  (`PRRT_…`)** — keep that id, you need it to resolve the thread in step 8.
+  (`PRRT_…`)** — keep that id, you need it to resolve the thread in step 7.
 - **③ Issue comments** (`method: get_comments`) — the PR conversation, not tied to any line.
 
-Page with `perPage` / `after` if there are many comments.
+**Page each of the three to exhaustion — they paginate independently, and 100 is a page size, not a
+ceiling.** Ask for `perPage: 100`, then keep passing `after` while the response reports another page. A PR
+under active bot review runs well past one page; stopping at the first one is the usual way comments go
+missing.
+
+State the count per bucket before triaging, and give step 3's table one row per collected comment — that
+number is what makes a dropped page visible.
 
 ### 3. Triage — verify every comment against the source (the important step)
 
@@ -99,7 +105,7 @@ Either mode needs the fix's owning commit: `git log --oneline <base>..HEAD`, the
 git commit --fixup=<target-sha> -- <files>
 ```
 
-No rebase, so step 7 pushes fast-forward. An incremental reviewer (CodeRabbit, Copilot, GitHub's own
+No rebase, so the push fast-forwards. An incremental reviewer (CodeRabbit, Copilot, GitHub's own
 "changes since your last review") diffs against the commits it already saw — rewriting those throws the
 baseline away and re-reviews the whole PR.
 
@@ -116,7 +122,36 @@ GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
 
 Avoid a noisy standalone "address review comments" commit unless the user wants the review trail in history.
 
-### 7. Push the fixes — confirm first
+### 7. Re-read, then reply and resolve — before pushing
+
+**Re-read all three buckets first** — step 2's calls, paged to exhaustion again — and diff the result
+against what you triaged. Fixing takes time, and the PR moved while you worked. Three things surface:
+
+- **New comments** — a reviewer or bot added them since step 2. Triage them (step 3); if real, loop back
+  through steps 4–6 before replying to anything.
+- **Threads someone else already resolved** — leave them alone: no reply, no re-resolve.
+- **Comments the first pass never saw** — it stopped a page short. Triage these too.
+
+Then, two buckets, two behaviors:
+- **Fixed** → reply explaining the fix, then **resolve** the thread.
+- **Not fixed** (false positive, intentionally kept, or deferred) → reply with the reasoning and
+  **leave the thread open** so a human reviewer sees it and decides. Never resolve what you did not change.
+
+The re-read just handed you every thread's id (`PRRT_…`) and its comments — no extra lookup needed.
+
+- **Reply:** `add_reply_to_pull_request_comment` with `commentId` (the comment's databaseId) and `body`.
+- **Resolve** (only the fixed ones): `pull_request_review_write` with `method: resolve_thread` and
+  `threadId` (the `PRRT_…` id).
+
+Word each reply to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
+commits, the replies are still true.
+
+Re-read once more and confirm the end state: fixed → resolved, not-fixed → open.
+
+### 8. Push the fixes — confirm first
+
+Replying first is deliberate: pushing marks the affected lines' comments as outdated, and GitHub collapses
+outdated threads out of sight — a reply landing after that is far easier to miss.
 
 Updating the PR is outward-facing: **confirm with the user before pushing**, and guard against clobbering
 remote work first — in either mode:
@@ -140,24 +175,6 @@ git push --force-with-lease=<branch>:<expected-remote-sha> origin HEAD:<branch>
 - A remote ruleset may warn `Commits must have verified signatures ... violation: <sha>` when the
   rewritten commit is unsigned. The push can still succeed, but a signed-commits merge rule may later
   block the merge — flag it to the user (it's their git signing config, not something to fix silently).
-- Pushing marks the affected lines' comments as outdated automatically.
-
-### 8. Reply to comments and resolve threads
-
-Two buckets, two behaviors:
-- **Fixed** → reply explaining the fix, then **resolve** the thread.
-- **Not fixed** (false positive, intentionally kept, or deferred) → reply with the reasoning and
-  **leave the thread open** so a human reviewer sees it and decides. Never resolve what you did not change.
-
-You already have each thread's id (`PRRT_…`) and its comments from step 2's `get_review_comments` — no extra
-lookup needed.
-
-- **Reply:** `add_reply_to_pull_request_comment` with `commentId` (the comment's databaseId) and `body`.
-- **Resolve** (only the fixed ones): `pull_request_review_write` with `method: resolve_thread` and
-  `threadId` (the `PRRT_…` id).
-
-Finally, re-read with `pull_request_read` (`method: get_review_comments`) and confirm the end state:
-fixed → resolved, not-fixed → open.
 
 ## Output
 
