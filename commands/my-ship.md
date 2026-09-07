@@ -140,6 +140,13 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
        issue**; when it merely advances one, take a non-closing verb — whichever the template teaches
        (`Addresses`, `Relates`, `Part of`), else a plain `Addresses #<n>`. `Fixes` on partial work
        closes what isn't done, and reopening loses the thread's triage.
+     - **Scan the finished body before posting it — GitHub does not read negation.** A closing keyword
+       co-occurring with `#N` closes it, so "does **not** close #12" closes #12. Every sentence that
+       records a gap is a candidate, which is precisely where this lands:
+       ```bash
+       grep -icE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"   # must print 0
+       ```
+       Nonzero → rephrase to a non-closing verb or drop the `#`.
    - **Match the house style** — a template names the sections, not how this project fills them. Read the
      latest merged PR (`gh pr list --state merged -L 1 --json body -q '.[0].body'`) for how much detail a
      reviewer expects and which `/kind` labels are real.

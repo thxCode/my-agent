@@ -105,6 +105,29 @@ Do **one** pending task from the task list:
    continue against the reconciled target. A **design-level** problem (the design itself overturned, not a
    task detail) → beyond the write-back, recommend returning to `/my-plan` to re-plan; if the main model was
    downshifted for the build, suggest `/model claude-fable-5` first so full reasoning is back for the re-plan.
+   **Whether the overturn is yours to make or the user's to rule on** — the two questions in
+   `~/.claude/references/my-workflow/decisions.md`, "Overturning a decision that is already written down".
+7. **Where a finding goes — and it is usually not a new todo issue.** Ask **what would close it**:
+
+   | Its close condition | Where it goes |
+   | --- | --- |
+   | "these specific lines in this file become X" | an issue, or a new task |
+   | "someone makes that judgment again" | **not an issue** — it is a *property*: write it into the target (Notes / Constraints / Risks) where the next reader meets it |
+   | "this task does it in passing" | file nothing — **widen this task's acceptance** |
+
+   An issue that should never have existed and a real gap are **identical in an issue list** — one title and one
+   number each — so the list can never tell you later which it was. Measured: 39+ issues opened across one
+   program, one of which concluded that "the remaining ~35 sites are prose, mechanically undecidable" — that is
+   a property, not a gap. And a deferral you do record must state **what does not count as filling it**, or the
+   next adjacent change closes it — a gap that only says what is missing lets whoever fills it pick the
+   acceptance criterion, and the cheapest filler is usually the one that discriminates nothing.
+
+   **A conditional deferral needs an action on both branches.** "If it turns out to be real, file an issue"
+   specifies only the positive branch, so a negative finding triggers nothing — and a negative conclusion
+   produces no commit, no file, no PR, which makes it the single easiest conclusion to lose. The record then
+   still reads "not verified", indistinguishable from never having looked, and it goes on inviting someone to
+   redo the work. The negative branch's action is to **write the conclusion back** ("checked, does not hold,
+   because X") in the same step as reporting it — there is no later trigger.
 
 ## Phase 4 — Review & impact analysis
 

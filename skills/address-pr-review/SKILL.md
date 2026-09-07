@@ -45,6 +45,15 @@ three come from `pull_request_read` (same `owner` / `repo` / `pullNumber`):
 ceiling.** Ask for `perPage: 100`, then keep passing `after` while the response reports another page.
 Stopping at the first page is the usual way comments go missing.
 
+**④ And read the review *body* itself, not just the thread list.** Copilot folds low-confidence
+findings into a `### Suppressed comments (N)` / `<details><summary>Suppressed comments</summary>`
+block **inside** the review body: they create no thread, none of the three buckets returns them, and
+`0 unresolved` cannot see them. They also accumulate across rounds — measured at 17 across 6 rounds on
+one PR and 62 across 6 rounds on another. **Suppressed means low confidence, not low value**, so
+triage each one exactly like an inline comment. A bot may also route findings into an issue comment or
+leave them only in a CI run log, so the denominator is "what this bot emitted", never "what has a
+thread".
+
 State the count per bucket before triaging. Step 3's verdicts must add back up to those counts — that
 sum is what makes a dropped page visible.
 
@@ -83,6 +92,25 @@ go test ./<pkg>/...            # or the repo's test command
 helm template ... | grep ...   # for chart/manifest changes, prove the rendered output is valid
 ```
 
+**Re-run the project's code generation on every round it has one — the test suite is not that check.**
+⛔ Don't gate this on "did I rebase this round": that is conversation state, unknowable after a resume or a
+compaction, **and it has no tree-observable substitute** — a rebased branch and a merely-behind branch have the
+same fork point, so any `first^` vs `merge-base` comparison returns equal in both cases (measured: it printed
+`SAME` for both). Running the generator *is* the check, and it costs one command.
+
+"The text merged cleanly" and "the generated output is still correct" are two independent facts. Measured: a PR
+rebased onto a new base returned `EXIT=0` from `git merge-tree --write-tree` — no conflicts anywhere — while
+re-running generation from the new HEAD drifted **four** files (a `.proto`, a CRD, an openapi doc, an
+applyconfiguration). Nothing reports that: it is not a merge conflict, so the only gate that speaks up is CI's
+generated-artifact check, and by then the PR is pushed.
+
+```bash
+make generate            # or whatever the repo's codegen target is
+git status --porcelain   # must come back empty
+```
+
+And this is not a two-window problem: a plain single-window rebase produces the same drift.
+
 ### 6. Land the fixes — fixup by default, fold only when history is being rewritten anyway
 
 One fact decides the mode: **does this round rewrite history regardless?**
@@ -97,6 +125,19 @@ State which mode you picked and why before committing; the user can override.
 
 Either mode needs the fix's owning commit: `git log --oneline <base>..HEAD`, then `git blame <file>` /
 `git log --oneline -- <file>`.
+
+**Resolve `<base>` freshly every time, and again after any rebase** — never reuse the ref from an earlier
+command in this session. After a rebase the merge-base has moved: a stale one leaves `--autosquash` unable to
+find its targets, or drags commits that aren't yours into the rewrite range.
+
+```bash
+git fetch origin <base-branch>
+git merge-base HEAD FETCH_HEAD          # this round's <base>
+git ls-remote origin <base-branch>      # the remote's actual tip
+```
+
+`refs/remotes/*` is a **cache, not the remote** — judge what the remote currently holds with `ls-remote` (or a
+fresh fetch), never from a tracking ref that may be hours old.
 
 **fixup — leave the fixups standing.** One per owning commit:
 
@@ -145,7 +186,34 @@ The re-read just handed you every thread's id (`PRRT_…`) and its comments — 
 Word each reply to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
 commits, the replies are still true.
 
+**Scan every reply body for an accidental closing keyword before posting it.** GitHub closes on
+`close|fix|resolve` co-occurring with `#N`, and **it does not read negation** — "does **not** close #12" closes
+#12. The trap hunts exactly the replies this step produces, because "this does not fully fix #12" is both the
+honest wording and the trigger:
+
+```bash
+grep -icE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"   # must print 0
+```
+
+Rephrase to a non-closing verb (`addresses #12`, `part of #12`) or drop the `#`; never rely on the negation.
+
 Re-read the threads you touched and confirm the end state: fixed → resolved, not-fixed → open.
+
+Two traps in that confirmation, both measured:
+
+- ⛔ **`resolvedBy.login` cannot tell you *who* resolved a thread.** Anything done through `gh` runs on
+  the user's credentials, so "the user clicked it" and "I clicked it" are the same value. Attribution
+  can only come from **your own operation log**, and that log has to (a) discriminate — grep the
+  **success output** (`OK resolved <tid>`), never the script text, since the resolve list and the
+  leave-open list sit in the same file — and (b) survive: write it under `~`, never `/tmp` (measured:
+  darwin cleared `/tmp` mid-session), because a compacted tool result is not on disk either.
+- ⛔ **A thread's state and its own text contradict each other, in both directions.** A batch resolve
+  erases the "leaving this open" reply you just wrote (the loop cannot read its own replies), and a
+  silent fix leaves "real, and not yet fixed" standing on a correctly-resolved thread. The check is
+  mechanical: compare `isResolved` against **your own last reply on that thread** — one pass finds
+  both; looking at state alone, or text alone, finds neither. (Measured: 7 candidates on one PR, 5
+  real.) **Discipline fails in front of a batch operation, because a batch is exactly where the
+  discipline is not present.**
 
 ### 8. Push the fixes — confirm first
 
