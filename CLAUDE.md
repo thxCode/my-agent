@@ -60,6 +60,45 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. Verify the Instrument
+
+**Read the criterion out of the thing under test, not out of your notes.**
+
+- Did I read this predicate from the object, or write it myself?
+- A check you just wrote is more suspect than the thing it checks.
+- Errors clustering on one kind of input mean the check is wrong, not the target.
+- Compare contents, not summaries - `diff --stat` cannot see a same-line edit.
+- Feed a new gate an input it must reject; confirm it fails before trusting it.
+- "Nothing bad is in the set" is vacuously true - it proves nothing.
+
+The test: "Does this look reasonable?" passes for a wrong answer too, and "almost right" hides longest.
+
+## 6. Durable Docs
+
+**Put it where the next person will look. Say it plainly.**
+
+- Emphasis is one capitalized word: `NEVER` `FORBIDDEN` `REQUIRED` `LIMITED` `ALLOWED` `SUGGESTED`.
+- No emoji, no invented compounds, no abbreviations.
+- Keep a prohibition's reason beside it; the next person is editing code, not specs.
+- Committed text carries no timestamps, IPs, hostnames, `user@host` or cluster IDs.
+- Describe by shape and role: "a three-node Kubernetes cluster".
+
+A rule without a gate is a wish. Confirm its scope - an ignore-aware search never sees ignored files.
+
+## 7. Memory Last
+
+**Route a lesson before you write it. The repo outranks memory.**
+
+- Already in the repo (docs, `CLAUDE.md`, an overview skill)? Don't duplicate it.
+- A rule that always applies goes in an always-loaded file, not in recalled memory.
+- A fact about the code goes beside the code. If it can't, say why.
+- Append to the entry that already covers the theme; don't mint a new file.
+- Two entries that conflict: verify one, delete the other - both get recalled.
+- Cap at 100 entries; measure the index in bytes (`wc -c`), not characters.
+- Write it in the session's configured language; keep identifiers as they are.
+
+The test: would an already-loaded file have answered this? Then it isn't memory.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
