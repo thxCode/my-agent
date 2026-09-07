@@ -19,8 +19,13 @@ effort (`gpt-5.5`, `xhigh`) does *not* make a handoff supervised.
 
 Nothing in the `my-*` build family calls this. It fires only when you type it.
 
-- **Language.** Write the handoff file in **English**; talk to the user in their configured language.
+- **Language.** Write the handoff file in the **session's configured language** — the same one you talk to the
+  user in. The receiving window is configured the same way, and the file is a transcription of judgments already
+  made in that language, so translating it inserts a distortion step for nobody's benefit. (Project artifacts
+  are the other case: code, comments, commits, specs and docs still follow the project's conventions.)
 - **Never guess `orca` flags.** They move between releases. Phase 4 loads the version-matched guide first.
+- **Cross-window mechanics** — `~/.claude/references/my-workflow/multi-window.md`: the channels and how each one
+  fails, and why every message must say who is speaking.
 
 ## 1. Probe the host
 
@@ -58,16 +63,23 @@ argv both: `KIMI_CODE_NO_AUTO_UPDATE=1 kimi --auto` works here and is impossible
 
 `<cwd>/.claude/handoffs/<yyyy-mm-dd>-<slug>.md` — always local, never staged.
 
-**The file isn't optional.** `terminal send` delivers into a TUI that submits on newline, so a long brief
-gets truncated or fires early. What you send is one short line pointing at this file; everything the other
-agent needs has to be *in* the file. It starts cold — no CLAUDE.md of yours, no conversation, no idea what
-you already tried.
+**The file isn't optional**, for two independent reasons. `terminal send` delivers into a TUI that submits on
+newline, so a long brief gets truncated or fires early. And **a file is the only carrier every agent can read** —
+Claude, Codex, Kimi and opencode share no message bus, so content that lives in a file survives a change of
+target or channel untouched, while content living in a message has to be re-stated to move. What you send is one
+short line pointing at this file; everything the other agent needs has to be *in* the file. It starts cold — no
+CLAUDE.md of yours, no conversation, no idea what you already tried.
+
+**Say who is speaking, inside the file.** Delivered into an input box, your line arrives as a **user turn** in
+that session: the target cannot tell your judgment from the user's. So mark your own rulings as yours, and when
+the brief relays a user instruction, carry its coordinates — the session transcript path plus `line=` / `type=`
+/ `ts=` — because the receiver's check is the transcript, not your quotation marks (`multi-window.md` §3).
 
 ```markdown
 # Handoff: <Title>
 
 To: <agent> · From: Claude Code · <yyyy-mm-dd>
-Worktree: <path>
+Worktree: <path> · Base: <sha the work starts from, and what may not move under it>
 
 ## Task
 <What to do, in one paragraph. Concrete enough to start without asking anyone.>
@@ -83,7 +95,8 @@ This is the part that can't be recovered from the repo.>
 <Verifiable done criteria.>
 
 ## Boundaries
-<What not to touch: paths, branches, whether it may commit or push.>
+<What not to touch: paths, branches, whether it may commit or push.
+And what does **not** count as in scope — the line that saves a round-trip per boundary case.>
 
 ## Verify
 <The commands that prove it works.>

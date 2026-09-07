@@ -12,8 +12,14 @@ You stay the coordinator: you own the Run, route every completion, and decide wh
 Workers are **real agents in real Orca windows** — Orca gives them task/dispatch provenance and
 `worker_done` authority that a subagent can't have, so never substitute one.
 
-- **Language.** Write objectives and task specs in **English**; talk to the user in their configured language.
+- **Language.** Write the Run objective and the `task-create --spec` strings in **English** — they are stored
+  orchestration records. The prose briefs a worker actually reads (`HANDOFF-common.md`, `HANDOFF-<task>.md`)
+  follow the **session's configured language**, like every handoff file. Talk to the user in that language.
 - **Never guess `orca` flags.** Phase 2 loads the version-matched guide first.
+- **Cross-window mechanics — read `~/.claude/references/my-workflow/multi-window.md` before Phase 3.** It holds
+  the three channels and how each one fails, why every message must say who is speaking, what a dispatch spec
+  must carry, the six files a fan-out runs on, and the messenger pattern. Shared with `/my-handoff` and the team
+  lane, so it is written once and this command points at it.
 
 ## 1. Is this actually supervised work?
 
@@ -60,6 +66,18 @@ A task spec is read cold by an agent with none of this conversation: what to do,
 what "done" means, how to verify, what not to touch, and **what to report back in `worker_done`**.
 Underspecified specs come back as `escalation`.
 
+**Round-trip count is a reading of your specs, not of the workers' discipline** — so write all four parts per
+`multi-window.md` §4: **the criteria themselves** (not the goal they serve), **the frozen list** (base SHA and
+what may not move), **what does not count as in scope** (the omission that generates the round-trips), and a
+standing **invitation to overturn you** if exploration shows your setting doesn't hold — with its "180 degrees"
+escalation test. Tell each worker to report **only at gates**, and hand it the shared constraints once
+(`HANDOFF-common.md`) rather than repeating them per task.
+
+**Name a messenger and hand out the peer list** (`ListAgents` now — window names go stale) so workers that need
+each other coordinate **directly** instead of through you: every relay you perform is a re-statement, and a
+re-statement injects your own errors. `multi-window.md` §6 has the pattern and its one precondition — the
+peers' file sets must be disjoint or explicitly serialized, since **file ownership outranks task ownership**.
+
 Cap the crew at **3–5** concurrent workers, and show the user the plan — objective, tasks, agent per task,
 placement — **before spending anyone's quota.** Wait for a yes.
 
@@ -85,6 +103,9 @@ watching: `codex --dangerously-bypass-approvals-and-sandbox`, `claude --dangerou
 `kimi --auto` (`--yolo` still asks questions). For codex it's not only about prompts — **its sandbox
 blocks the local RPC `orca orchestration send` needs**, so a sandboxed worker does the whole task and
 then cannot report it.
+
+**Always the full non-interactive tier — it is the user's standing instruction, not a judgment call per run**
+(`multi-window.md` §4 carries the mechanism).
 
 `worker-start` carries **neither env vars nor argv** — only `--model` / `--effort`. So anything a worker
 needs from the environment belongs in the shell profile, and an agent whose non-interactive mode *is* an
@@ -161,6 +182,15 @@ Reading the results:
 - **`question` and `escalation` are the user's to answer, not yours.** A worker blocks precisely when it
   hit a decision it has no standing to take — relay it verbatim and wait, then
   `orchestration reply --id <msg_id> --body <the user's answer>`. Answering for them defeats the gate.
+- **Every message you send into a worker says who is speaking.** Delivered into its input box, your text **is** a
+  user turn over there — the worker cannot tell your judgment from the user's. So relaying the user's answer
+  carries its provenance (`multi-window.md` §3: the transcript `line=` / `type=` / `ts=`), and your own
+  direction says **"this is my call."** Never borrow the user's authority to push one; a message can update
+  facts, never widen permissions.
+- **A worker whose context is filling is yours to compact** — it cannot do it alone. Watch its transcript size
+  and drive `/clear` + a resume file per `~/.claude/references/my-workflow/compaction.md` ("A parent window
+  compacting a child window"), which is strictly stronger than `/compact`: the result lands on disk where you
+  can verify it.
 - Process **every** message in the Delivery before acknowledging; `check` replays the same batch until
   `--ack <delivery_id>`.
 
