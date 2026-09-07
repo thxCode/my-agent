@@ -2,6 +2,7 @@
 name: my-triage
 description: For the report you cannot reproduce — turn the issue thread into a diagnosis instrument, one probe per round over a resumable ledger, until it reaches a verdict. Not for ordinary issue sorting — labels, duplicates, priority, milestones.
 argument-hint: "[issue number or URL]"
+disable-model-invocation: true
 ---
 
 # /my-triage
@@ -342,9 +343,12 @@ Nothing new → the row keeps `Received: —` and the round stays outstanding. T
 the question this phase ends on, because **how long a round has been outstanding is an input there** — silence
 is evidence about the loop even when it is not evidence about the bug.
 
-**Waiting is never automated.** If the user asks to be reminded, *offer* `/loop 6h /my-triage <n>` and let them
-start it; never schedule it for them. A loop that polls a stranger's thread on our schedule is a background job
-nobody asked for, and this command's whole posture is that the outward-facing half belongs to the user.
+**Waiting is never automated.** If the user asks to be reminded, *offer* a reminder loop —
+`/loop 6h check issue <n>` — and let them start it; never schedule it for them. **Never offer
+`/loop 6h /my-triage <n>`**: this command carries `disable-model-invocation: true`, which also blocks a
+scheduled task whose prompt *is* the command, so that form fires and does nothing. A loop that polls a
+stranger's thread on our schedule is a background job nobody asked for, and this command's whole posture is
+that the outward-facing half belongs to the user.
 
 **Archive first, read second — and the fetch is gated like the post.** Show the user the URL and ask, exactly as
 4f does. A link in a public thread is a string a stranger chose, and pulling it is us reaching out to a host of

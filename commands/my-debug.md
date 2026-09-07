@@ -2,6 +2,7 @@
 name: my-debug
 description: Root-cause a bug and write a fix plan to .claude/debugs/, then hand off to /my-build. The lightweight local lane for a bug that needs no tracked spec.
 argument-hint: "[bug description, error, or repro] [--assist codex|kimi]"
+disable-model-invocation: true
 ---
 
 # /my-debug

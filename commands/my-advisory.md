@@ -2,6 +2,7 @@
 name: my-advisory
 description: Address a security report end to end — triage and score the claim, pick the embargo and the merge route, open the GHSA advisory, drive /my-debug → /my-build → /my-ship under disclosure discipline, then release, credit, request the CVE, publish.
 argument-hint: "[a GHSA id or advisory URL, a pasted report email, or a public issue number/URL]"
+disable-model-invocation: true
 ---
 
 # /my-advisory
@@ -118,7 +119,10 @@ which is why the public route usually wins.
 
 ## Phase 2 — Diagnose — `/my-debug`, plus two things
 
-Run `/my-debug` as documented. It writes `.claude/debugs/<yyyy-mm-dd>-<title>.md`; this command adds the
+Run `/my-debug` **by reading `~/.claude/commands/my-debug.md` and executing its phases here** — it is
+user-invoke-only (`disable-model-invocation: true`), so it cannot be invoked as a skill from inside this
+command; a command file is just instructions, so reading and following it is equivalent. Same for `/my-triage`
+at 1b. It writes `.claude/debugs/<yyyy-mm-dd>-<title>.md`; this command adds the
 `Disclosure:` header line and the `## Disclosure` section (appendix), and two overrides:
 
 1. **Choose a neutral title under embargo.** `/my-build` derives the branch from it (`fix/<title>`), and on the

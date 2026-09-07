@@ -21,7 +21,8 @@ or `.claude/specs/` local).
 ## Phase 2 — Re-ground (read-only)
 
 1. Re-read the spec end-to-end.
-2. Re-ground the design in the real codebase: `gitnexus-exploring` if available, else `grep`/`find`. External
+2. Re-ground the design in the real codebase: the **GitNexus MCP tools** if available (`query` / `context` /
+   `explain`, and `impact` / `api_impact` before touching a shared symbol), else `grep`/`find`. External
    libs/frameworks not in the dependency tree → **DeepWiki**; a JS-rendered doc DeepWiki can't reach →
    `crawl4ai-search`. **Frontend** spec → a screenshot of the current rendered screen (`crawl4ai-search`, PNG to
    the scratchpad) keeps this phase read-only on project files. Broad sweeps (at the `grep`/`find` tier) —

@@ -2,6 +2,7 @@
 name: my-spec
 description: Write a KEP-style spec before coding — saves to specs/. Use to start a feature, spec out an idea, open a tracked bug fix, or turn a GitHub issue into a spec.
 argument-hint: "[what you want to build or fix, or a GitHub issue]"
+disable-model-invocation: true
 ---
 
 # /my-spec
@@ -26,7 +27,8 @@ on it.
 Build enough understanding to write a grounded spec (following the Source-lookup order):
 
 - **Project** — an `overview` skill if available; else `README.md`, `CLAUDE.md`, `docs/**/*.md`.
-- **Code** — `gitnexus-exploring` if available, else `grep`/`find`. GitNexus returns nothing (index
+- **Code** — the **GitNexus MCP tools** if available (`query` / `context` / `explain` for a symbol or a flow,
+  `route_map` / `tool_map` for an entry-point inventory), else `grep`/`find`. GitNexus returns nothing (index
   missing/stale) → **ask permission**, then `gitnexus-cli` → `analyze --index-only` (`--embeddings` only on the
   default branch; omit on a feature branch to preserve default-branch embeddings), and retry.
 - **Broad sweeps** (at the `grep`/`find` tier) — multi-file inventories,
@@ -51,7 +53,7 @@ Infer it; anything not clearly a bug takes the Feature path.
    | --- | --- |
    | `agent-skills:interview-me` | underlying intent unclear / not in context (extract it, one question at a time) |
    | `agent-skills:idea-refine` | idea present but vague (sharpen & stress-test) |
-   | `auto-research` | motivation depends on external facts (competitive analysis, prior art, sizing) — fold its **research digest** into Motivation + stories' "so that `<benefit>`"; its gaps → Open Questions |
+   | `auto-research` | motivation depends on external facts (competitive analysis, prior art, sizing). **User-invoke-only** — offer `/auto-research <topic>`, then fold its digest into Motivation + stories' "so that `<benefit>`"; its gaps → Open Questions. One page settles it → `crawl4ai-search` / `WebFetch` yourself |
 
    Stories already concrete → skip refinement.
 3. Carry the **finalized user stories** into Phase 3 (they pre-fill area #5 and anchor the rest).

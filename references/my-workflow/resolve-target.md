@@ -21,8 +21,9 @@ From the selector (`$ARGUMENTS` minus any mode token such as `auto` / `team`):
 
 ## Missing file
 
-- `/my-plan`, `/my-build` → **stop and hand back** to `/my-spec` (or `/my-debug` for a bug) to initialize it;
-  offer to run it now. Requirements come from the target, never from invention.
+- `/my-plan`, `/my-build` → **stop and hand back** to `/my-spec` (or `/my-debug` for a bug) to initialize it.
+  Both are user-invoke-only, so **print the command for the user to run** rather than offering to run it
+  yourself. Requirements come from the target, never from invention.
 - `/my-ship` → **target-optional; never block.** Only when the selector *explicitly names* a target that
   doesn't exist, offer (don't force) `/my-spec` / `/my-debug`, or ship as-is on the user's say-so. Bare/empty
   with none found → **no-target mode**, ship from the branch diff.

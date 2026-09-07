@@ -8,6 +8,7 @@ description: >-
   deep, multi-source, fact-checked report on a topic, or to enrich a /my-spec Motivation / User Stories. If
   the question is underspecified, ask 2-3 clarifying questions first; then, after showing the plan, run
   unattended (auto mode) or pause for per-round approval (manual-approve mode).
+disable-model-invocation: true
 ---
 
 # auto-research
@@ -37,8 +38,8 @@ Two grounding rules from the field (auto-research survey, Ch.7):
 - `/my-spec` needs external facts to ground a spec's **Motivation** or **User Stories** (see *`/my-spec` Return
   Contract*).
 
-**Do not use** for: a single-fact lookup (just search), reading the local codebase (use Explore /
-gitnexus-exploring), or finding a library/tool to adopt (a plain npm/PyPI/GitHub search).
+**Do not use** for: a single-fact lookup (just search), reading the local codebase (use Explore or the
+GitNexus MCP tools), or finding a library/tool to adopt (a plain npm/PyPI/GitHub search).
 
 ## Inputs
 
