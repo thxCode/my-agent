@@ -13,8 +13,9 @@ overview and docs, open a clean PR. **Target-optional** — a **target** (spec o
 finalization and gets written back; with none, ship straight from the branch diff. Every change conforms to
 project conventions (target **Code Style** & **Boundaries** when present, `CLAUDE.md`, existing test/doc structure).
 
-- **Language.** Write target edits (e2e fix write-backs) in **English**; other artifacts (tests, overview,
-  docs/ADRs, commits, PR body) follow the project's conventions; talk to the user in their configured language.
+- **Language.** Write target edits (e2e fix write-backs), commit messages and the PR title/body in
+  **English** — reviewers reading the PR never saw this session's settings; in-repo artifacts (tests,
+  overview, docs/ADRs) follow the project's conventions; talk to the user in their configured language.
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Phase 1 — Resolve the ship target

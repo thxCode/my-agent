@@ -11,6 +11,9 @@ and **landing the fixes without making the git history ugly**. Bot reviewers (Co
 produce confident-sounding comments that are sometimes wrong; never apply a comment without verifying it
 against the source first.
 
+- **Language.** Write every PR-facing string — reply bodies, PR title/description edits — in **English**;
+  talk to the user in their configured language. Step 7 is where the two get confused, and has the reason.
+
 ## Workflow
 
 ### 1. Locate the PR
@@ -172,12 +175,36 @@ against what you triaged. Fixing takes time, and the PR moved while you worked. 
 - **Threads someone else already resolved** — leave them alone: no reply, no re-resolve.
 - **Comments the first pass never saw** — it stopped a page short. Triage these too.
 
+**Re-read the PR's own `state` in the same call, not only its comments.** A round takes long enough
+that the PR can be *merged* while you are addressing it — measured: merged mid-round by the user, who
+did not connect the merge to the round in flight. That invalidates the landing plan, not the fixes,
+and it fails in three places at once:
+
+- Every SHA already named in this round's replies becomes **unreachable from any remote ref**. The
+  replies stay true and their pointers stop resolving, so a reader chases dead SHAs. Post a pointer
+  correction on each affected thread and one on the PR, naming where the work went.
+- A squash merge makes the branch's own commits **unmergeable** — they replay content `main` already
+  has. Move the delta by patch instead: `git diff <merged tip> <local tip>` applied onto a branch off
+  the new `main`, verified blob-by-blob (`git hash-object <file>` against `git rev-parse <tip>:<file>`)
+  rather than by diffstat, then **regenerate on the new base** before committing.
+- The fixes become a **follow-up PR** with real commit messages, not fixups of commits that merged.
+  Link it with `Relates #<merged>` and say in the body why it arrives as separate commits.
+
+Check `state` before you write a reply, since that is the cheap moment: after the reply is posted the
+correction is a second public message.
+
 Then, two buckets, two behaviors:
 - **Fixed** → reply explaining the fix, then **resolve** the thread.
 - **Not fixed** (false positive, intentionally kept, or deferred) → reply with the reasoning and
   **leave the thread open** so a human reviewer sees it and decides. Never resolve what you did not change.
 
 The re-read just handed you every thread's id (`PRRT_…`) and its comments — no extra lookup needed.
+
+**Every reply body is English.** The configured language governs what you say **to the user** — the triage
+table, the running commentary, the final summary — and nothing you post to the PR, whose readers
+(reviewers, bots, future contributors) never saw this session's settings. The confusion happens here and
+nowhere else in this skill, because step 3's verdict is already written in the language you talk to the
+user in: **translate it into the `body`, do not paste it.**
 
 - **Reply:** `add_reply_to_pull_request_comment` with `commentId` (the comment's databaseId) and `body`.
 - **Resolve** (only the fixed ones): `pull_request_review_write` with `method: resolve_thread` and
