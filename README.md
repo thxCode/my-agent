@@ -1,26 +1,64 @@
 # My Agent Workflow
 
-Personal, reusable engineering workflows for Claude Code, Codex, and Kimi Code. The canonical assets live here;
-`~/.agents/skills` points to [`skills/`](skills), which all three agents can discover.
+Personal, reusable engineering workflows for Claude Code, Codex, and Kimi Code. Clone this repository directly
+to `~/.agents`; it is the canonical source for shared instructions, skills, and role contracts.
 
 ## Shared layout
 
 ```text
-~/.claude/
-├── skills/                 # canonical cross-agent skills
-│   ├── my-workflow/        # natural-language router
-│   │   └── references/     # shared decision, runtime, and artifact contracts
-│   ├── my-spec/            # one workflow stage per skill
+~/.agents/                    # this Git repository
+├── AGENTS.md                 # shared global instructions
+├── skills/                   # Codex and Kimi discover this directly
+│   ├── my-workflow/          # natural-language router and shared references
+│   ├── my-spec/              # one workflow stage per skill
 │   ├── my-plan/
 │   ├── my-build/
 │   └── ...
-└── agents/                 # optional Claude-native role adapters
+└── agents/                   # Claude-native adapters to shared role contracts
 
-~/.agents/skills -> ~/.claude/skills
+~/.claude/CLAUDE.md -> ~/.agents/AGENTS.md
+~/.claude/skills    -> ~/.agents/skills
+~/.claude/agents    -> ~/.agents/agents
+~/.codex/AGENTS.md  -> ~/.agents/AGENTS.md
 ```
 
-Do not create per-skill links under `~/.codex/skills` or `~/.kimi-code/skills`. Codex and Kimi both scan
-`~/.agents/skills`; Claude sees the canonical `~/.claude/skills` directory directly.
+Kimi reads `~/.agents/AGENTS.md` and `~/.agents/skills` directly. Codex reads the shared skills directly but
+needs its global `AGENTS.md` link. Claude needs the three links shown above. Do not create per-skill links under
+`~/.codex/skills` or `~/.kimi-code/skills`.
+
+## Install or update
+
+For a fresh install:
+
+```bash
+git clone https://github.com/thxCode/my-claude.git ~/.agents
+ln -s ../.agents/AGENTS.md ~/.claude/CLAUDE.md
+ln -s ../.agents/skills ~/.claude/skills
+ln -s ../.agents/agents ~/.claude/agents
+ln -s ../.agents/AGENTS.md ~/.codex/AGENTS.md
+```
+
+Kimi needs no link. Update all three hosts with one pull:
+
+```bash
+git -C ~/.agents pull --ff-only
+```
+
+## Host-owned settings
+
+Keep the workflow portable, but do not symlink whole client configuration files. Their model, permission, hook,
+and MCP schemas differ:
+
+| Host | User MCP configuration | Tool-definition loading |
+| --- | --- | --- |
+| Claude Code | user-scoped MCP state plus project `.mcp.json` | Tool Search defers MCP tools by default; use `alwaysLoad` only for a small always-needed server |
+| Codex | `~/.codex/config.toml` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
+| Kimi Code | `~/.kimi-code/mcp.json` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
+
+Keep equivalent server names across hosts when practical, and keep credentials in each host's supported
+environment-variable or OAuth mechanism. Shared skills may declare a dependency, but they do not own or copy
+credentials. Models and reasoning effort remain host settings; shared workflow text uses capability classes and
+inherits the active session configuration.
 
 ## Invocation
 
