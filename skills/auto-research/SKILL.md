@@ -2,13 +2,12 @@
 name: auto-research
 description: >-
   Autonomous research harness — decompose a topic, fan out web searches, fetch sources, adversarially verify
-  every claim against its source, then synthesize a Perplexity-style cited report at
-  <cwd>/.claude/reports/<title>.md. Cost-aware (reads the 5h/7d rate-limit usage and throttles) and
+  every claim against its source, then synthesize a Perplexity-style cited report in the project's
+  .claude/reports directory. Cost-aware (reads the 5h/7d rate-limit usage and throttles) and
   observable (emits a per-round digest of what was searched, read, and analyzed). Use when the user wants a
-  deep, multi-source, fact-checked report on a topic, or to enrich a /my-spec Motivation / User Stories. If
+  deep, multi-source, fact-checked report on a topic, or to enrich a my-spec Motivation / User Stories. If
   the question is underspecified, ask 2-3 clarifying questions first; then, after showing the plan, run
   unattended (auto mode) or pause for per-round approval (manual-approve mode).
-disable-model-invocation: true
 ---
 
 # auto-research
@@ -35,7 +34,7 @@ Two grounding rules from the field (auto-research survey, Ch.7):
 
 - The user asks for a deep / thorough / comprehensive report, a landscape or competitive analysis, prior-art or
   market research, a literature-style survey, or "research X and tell me everything."
-- `/my-spec` needs external facts to ground a spec's **Motivation** or **User Stories** (see *`/my-spec` Return
+- `my-spec` needs external facts to ground a spec's **Motivation** or **User Stories** (see *`my-spec` Return
   Contract*).
 
 **Do not use** for: a single-fact lookup (just search), reading the local codebase (use Explore or the
@@ -193,9 +192,9 @@ real source before folding it in — Codex is a second skeptic, not an oracle, a
 confirmed-but-imprecise Codex correction must itself be corrected, not pasted). Fold in only what you can confirm;
 drop or downgrade any material claim a verified refutation overturns; add the genuinely-missed risks. Record the
 outcome on the digest's `cross-check:` line (claims reviewed · corrections folded). This is the orchestrator's
-job — never delegate the adjudication back to Codex.
+job — never delegate the adjudication back to the reviewing worker.
 
-**7 — Return the digest.** Emit the paste-ready block from *`/my-spec` Return Contract* (key findings, report
+**7 — Return the digest.** Emit the paste-ready block from *`my-spec` Return Contract* (key findings, report
 path, confidence, sources-verified, assumptions, coverage gaps, refuted/uncertain summary, stop reason).
 
 ## Cost Governor
@@ -246,9 +245,9 @@ Final report → `<cwd>/.claude/reports/<title>.md` (Perplexity style, `referenc
 exists, write `<title>-2.md`, `<title>-3.md`, … Working state stays in the `<title>/` sibling dir so reruns never
 mix. The report is the artifact; the return digest is the summary.
 
-## `/my-spec` Return Contract
+## `my-spec` Return Contract
 
-When invoked by `/my-spec` (or any caller), end with this paste-ready block so the caller folds it into prose
+When invoked by `my-spec` (or any caller), end with this paste-ready block so the caller folds it into prose
 without re-reading the report or parsing JSONL:
 
 ```
@@ -269,7 +268,7 @@ Confidence: <high|mixed|low> · Sources verified: <n> · Stopped on: <saturation
 [1] https://…   [2] https://…
 ```
 
-These map 1:1 onto `/my-spec`'s `## Motivation` (Goals), `### User Stories`, and `## Open Questions`.
+These map 1:1 onto `my-spec`'s `## Motivation` (Goals), `### User Stories`, and `## Open Questions`.
 
 ## Long-Run Mode
 

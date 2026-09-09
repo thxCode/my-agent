@@ -6,22 +6,6 @@
 !agents/task-worker.md
 !agents/test-worker.md
 
-!commands/
-!commands/my-build.md
-!commands/my-crew.md
-!commands/my-debug.md
-!commands/my-handoff.md
-!commands/my-plan.md
-!commands/my-refine.md
-!commands/my-ship.md
-!commands/my-spec.md
-!commands/my-triage.md
-
-!references/
-!references/my-workflow/
-!references/my-workflow/**
-
-
 !skills/
 !skills/address-pr-review/
 !skills/crawl4ai-search/
@@ -30,6 +14,8 @@
 !skills/auto-research/**
 !skills/crosscheck/
 !skills/crosscheck/**
+!skills/my-*/
+!skills/my-*/**
 
 /CLAUDE.md
 /LICENSE
