@@ -115,15 +115,111 @@ the middle of a live session unless the current capability is insufficient.
 
 ## Optional integrations
 
-- [GitNexus](https://github.com/abhigyanpatwari/GitNexus) for code graph exploration and impact analysis.
-- [Orca](https://github.com/stablyai/orca) for cross-window agents, worktrees, and structured orchestration.
-- [crawl4ai](https://github.com/unclecode/crawl4ai) for clean Markdown extraction and rendered screenshots.
-- Provider-specific Claude plugins may still supply read-only cross-check integrations, but shared workflow
-  skills never assume they exist.
+The shared `my-*` lifecycle works without these integrations. Install only the capability you need; an absent
+optional integration must degrade to the current host's built-in tools.
 
-Install Orca's shared skills for the agents you use, then keep `~/.agents/skills` as the common discovery root.
-The local `orca-cli` and `orchestration` skills are discovery stubs; their full guides come from the installed
-binary at execution time.
+| Integration | Install when you need | Configuration owner |
+| --- | --- | --- |
+| [DeepWiki MCP](https://mcp.deepwiki.com/) | repository documentation lookup | each MCP host |
+| [GitHub MCP](https://github.com/github/github-mcp-server) | issues, pull requests, and GitHub code search | each MCP host |
+| [GitNexus](https://github.com/abhigyanpatwari/GitNexus) | code-graph exploration and impact analysis | CLI plus each MCP host |
+| `agent-skills` plugin | Addy Osmani's additional Claude skills | Claude Code only |
+| Codex or Kimi plugin | call another provider from inside Claude | Claude Code only |
+| [crawl4ai](https://github.com/unclecode/crawl4ai) | clean Markdown extraction and rendered screenshots | local machine |
+| [Orca](https://github.com/stablyai/orca) | worktrees, handoffs, or supervised multi-agent runs | local machine plus shared skills |
+
+### MCP servers
+
+MCP registration is deliberately host-owned. The examples below configure Claude or Codex globally; in Kimi,
+open `/mcp-config` and add the same server name and transport to `~/.kimi-code/mcp.json`.
+
+DeepWiki provides documentation lookup for public GitHub repositories:
+
+```bash
+# Claude Code
+claude mcp add --scope user --transport http deepwiki https://mcp.deepwiki.com/mcp
+
+# Codex
+codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp
+```
+
+The official GitHub MCP endpoint requires authentication. This minimal cross-host setup uses a personal access
+token; keep it outside this repository and grant only the scopes you need:
+
+```bash
+export GITHUB_PAT_TOKEN="replace-with-your-token"
+
+# Claude Code
+claude mcp add --scope user --transport http github https://api.githubcopilot.com/mcp/ \
+  --header "Authorization: Bearer ${GITHUB_PAT_TOKEN}"
+
+# Codex reads the token from the environment when it starts the server
+codex mcp add github --url https://api.githubcopilot.com/mcp/ \
+  --bearer-token-env-var GITHUB_PAT_TOKEN
+```
+
+GitNexus can detect supported hosts and write their MCP entries. Run `analyze` once in each project that should
+have a code graph:
+
+```bash
+npm install -g gitnexus@latest
+gitnexus setup
+gitnexus analyze
+```
+
+### Claude Code plugins
+
+These plugins extend Claude Code only. Codex and Kimi do not need their corresponding Claude bridge plugin to
+use the shared skills directly.
+
+Install Addy Osmani's extra skill collection:
+
+```bash
+claude plugin marketplace add addyosmani/agent-skills
+claude plugin install agent-skills@addy-agent-skills
+```
+
+Install the Codex bridge when Claude should ask Codex for an optional cross-check:
+
+```bash
+claude plugin marketplace add openai/codex-plugin-cc
+claude plugin install codex@openai-codex
+```
+
+Then run `/codex:setup` inside Claude to verify the Codex CLI and login.
+
+Install the Kimi bridge when Claude should ask Kimi for an optional cross-check:
+
+```bash
+claude plugin marketplace add thxcode/kimi-code-plugin-cc
+claude plugin install kimi@moonshotai-kimi
+```
+
+The Kimi bridge also needs the Kimi CLI: install it with
+`curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`, run `kimi login`, then run `/kimi:setup` inside
+Claude. See [thxCode/kimi-code-plugin-cc](https://github.com/thxCode/kimi-code-plugin-cc) for provider setup.
+
+### Local helpers
+
+Install crawl4ai for the tracked `crawl4ai-search` skill:
+
+```bash
+uv pip install crawl4ai --system
+crawl4ai-setup
+crawl4ai-doctor
+```
+
+Install Orca, then put its two coordination skills only in the shared discovery root. `--agent universal` avoids
+creating redundant per-host copies:
+
+```bash
+brew install --cask stablyai/orca/orca
+orca skills install --skill orca-cli --skill orchestration --agent universal
+orca skills installed --json
+```
+
+The installed `orca-cli` and `orchestration` skills are discovery stubs. Their full guides come from the
+installed binary at execution time, which keeps command syntax matched to the local Orca version.
 
 ## Validation
 
