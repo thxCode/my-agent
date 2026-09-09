@@ -31,7 +31,7 @@ needs its global `AGENTS.md` link. Claude needs the three links shown above. Do 
 For a fresh install:
 
 ```bash
-git clone https://github.com/thxCode/my-claude.git ~/.agents
+git clone https://github.com/thxCode/my-agent.git ~/.agents
 ln -s ../.agents/AGENTS.md ~/.claude/CLAUDE.md
 ln -s ../.agents/skills ~/.claude/skills
 ln -s ../.agents/agents ~/.claude/agents
