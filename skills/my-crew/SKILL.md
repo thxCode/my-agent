@@ -1,6 +1,6 @@
 ---
 name: my-crew
-description: Supervise multiple agents through Orca Run, Task, and Dispatch state; use for tracked completion, task DAGs, decision gates, or cross-agent coordination, not fire-and-forget handoffs.
+description: Coordinate supervised Orca agents for tracked tasks, task DAGs, and decision gates.
 ---
 
 # my-crew
@@ -56,4 +56,3 @@ track, coordinate, or return results.
 
 Finish only when all Tasks are completed or explicitly settled and no worker remains active. Report the Run,
 Task outcomes, verification evidence, unresolved escalations, and any worktree/terminal intentionally left open.
-

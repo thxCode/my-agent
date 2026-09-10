@@ -1,6 +1,6 @@
 ---
 name: my-ship
-description: Finalize and ship a branch — e2e, docs and ADRs, tidy history, open a PR. Target-optional.
+description: Prepare a completed branch for validation, documentation, and pull request submission.
 ---
 
 # my-ship

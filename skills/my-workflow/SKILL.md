@@ -1,8 +1,6 @@
 ---
 name: my-workflow
-description: >-
-  Route software work through the shared my-* lifecycle: triage uncertain reports, diagnose bugs, write and
-  plan specs, build, ship, handle advisories, refine prompt assets, or coordinate agents through Orca.
+description: Route software work to the appropriate my-* workflow stage or specialized lane.
 ---
 
 # my-workflow

@@ -1,6 +1,6 @@
 ---
 name: my-debug
-description: Root-cause a bug and write a fix plan to .claude/debugs/, then hand off to my-build. The lightweight local lane for a bug that needs no tracked spec.
+description: Diagnose a confirmed local bug and write a handoff-ready fix plan.
 disable-model-invocation: true
 ---
 

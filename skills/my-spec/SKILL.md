@@ -1,6 +1,6 @@
 ---
 name: my-spec
-description: Write a KEP-style spec before coding — saves to specs/. Use to start a feature, spec out an idea, open a tracked bug fix, or turn a GitHub issue into a spec.
+description: Write a durable spec for a feature, tracked bug, or GitHub issue before implementation.
 disable-model-invocation: true
 ---
 

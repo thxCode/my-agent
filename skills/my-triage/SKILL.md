@@ -1,6 +1,6 @@
 ---
 name: my-triage
-description: For the report you cannot reproduce — turn the issue thread into a diagnosis instrument, one probe per round over a resumable ledger, until it reaches a verdict. Not for ordinary issue sorting — labels, duplicates, priority, milestones.
+description: Investigate an unreproducible report through a resumable evidence ledger; not routine issue triage.
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: crosscheck
-description: Decide when a complex plan, diagnosis, or diff warrants one independent read-only second opinion, select an available provider/runtime, reconcile disagreements, and prevent automatic fixes. Not for ownership handoffs.
+description: Get one independent read-only second opinion on a complex plan, diagnosis, or diff; do not auto-fix.
 ---
 
 # Cross-check gate

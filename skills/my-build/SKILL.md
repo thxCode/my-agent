@@ -1,6 +1,6 @@
 ---
 name: my-build
-description: Build a planned spec or debug artifact task by task — TDD, commit per task. `auto` chains unattended; `team` builds independent tasks in parallel.
+description: Implement an approved spec or debug plan with TDD and focused commits.
 ---
 
 # my-build

@@ -1,6 +1,6 @@
 ---
 name: address-pr-review
-description: "Read the review feedback already left on a pull request, triage each comment against the actual source (real bug vs. false positive), fix the real ones surgically, keep the git history clean by folding fixes into the right commit, and close the loop with ordinary PR conversation comments. This CONSUMES existing review comments and acts on them — it is the counterpart to skills that GENERATE a review (e.g. gitnexus-pr-review, /review). Examples: \"address the review comments on this PR\", \"the bot left review comments, fix the real ones\", \"how do I handle the feedback on PR #1\", \"apply the reviewer's suggestions and clean up the git log\", \"triage the Copilot review and explain the conclusions\"."
+description: "Address existing pull-request review feedback: validate comments, make justified fixes, and respond."
 ---
 
 # Address PR review feedback

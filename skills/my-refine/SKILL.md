@@ -1,6 +1,6 @@
 ---
 name: my-refine
-description: Audit a skill, agent contract, reference, or the whole my-* family for cross-file conflicts and prunable text, then apply the agreed edits and verify them mechanically.
+description: Audit and streamline skills, agent contracts, and workflow references.
 disable-model-invocation: true
 ---
 

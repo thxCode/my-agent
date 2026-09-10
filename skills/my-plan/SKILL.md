@@ -1,6 +1,6 @@
 ---
 name: my-plan
-description: Break a spec into a tracer-bullet task DAG with blocking edges and owned paths, and fill its Test Plan. Writes back the spec only.
+description: Turn a spec into a dependency-aware task plan and test plan; do not implement.
 ---
 
 # my-plan

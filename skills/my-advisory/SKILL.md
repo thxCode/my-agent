@@ -1,6 +1,6 @@
 ---
 name: my-advisory
-description: Address a security report end to end — triage and score the claim, pick the embargo and the merge route, open the GHSA advisory, drive my-debug → my-build → my-ship under disclosure discipline, then release, credit, request the CVE, publish.
+description: Handle a security advisory from report triage through coordinated disclosure and release.
 disable-model-invocation: true
 ---
 

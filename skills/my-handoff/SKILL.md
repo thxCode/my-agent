@@ -1,6 +1,6 @@
 ---
 name: my-handoff
-description: Transfer full ownership of the current work to another agent in an Orca window or worktree, deliver a durable handoff brief, confirm receipt, and stop without supervising.
+description: Transfer complete ownership of work to an Orca agent or worktree.
 ---
 
 # my-handoff
@@ -71,4 +71,3 @@ decision; no cross-window message can widen the user's authorization.
   orchestration mailbox messages to a worker that has no Dispatch.
 - Later corrections use the same durable file-plus-pointer channel. If supervision becomes necessary, switch to
   a new `my-crew` workflow rather than retrofitting lifecycle state onto the handoff.
-
