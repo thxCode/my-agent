@@ -11,7 +11,7 @@ and **landing the fixes without making the git history ugly**. Bot reviewers (Co
 produce confident-sounding comments that are sometimes wrong; never apply a comment without verifying it
 against the source first.
 
-- **Language.** Write every PR-facing string — ordinary PR conversation comments, PR title/description edits — in **English**;
+- **Language.** Write every PR-facing string — ordinary PR conversation comments, review-thread replies, PR title/description edits — in **English**;
   talk to the user in their configured language. Step 7 is where the two get confused, and has the reason.
 
 ## Workflow
@@ -41,7 +41,7 @@ three come from `pull_request_read` (same `owner` / `repo` / `pullNumber`):
   COMMENTED) and the summary body.
 - **② Inline review comments** (`method: get_review_comments`) — the most actionable feedback, bound to a
   file + line. Returns review **threads** with `isResolved` / `isOutdated` **and each thread's node id
-  (`PRRT_…`)** for identifying its state during triage.
+  (`PRRT_…`)** — the id step 7 resolves by.
 - **③ Issue comments** (`method: get_comments`) — the PR conversation, not tied to any line.
 
 **Page each of the three to exhaustion — they paginate independently, and 100 is a page size, not a
@@ -165,7 +165,7 @@ GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
 
 Avoid a noisy standalone "address review comments" commit unless the user wants the review trail in history.
 
-### 7. Re-read, then post an ordinary PR conversation comment — before pushing
+### 7. Re-read, then answer the review — per thread and in one summary — before pushing
 
 **Re-read all three buckets first** — step 2's calls, paged to exhaustion again — and diff the result
 against what you triaged. Fixing takes time, and the PR moved while you worked. Three things surface:
@@ -193,12 +193,31 @@ and it fails in three places at once:
 Check `state` before you post the comment, since that is the cheap moment: after the comment is posted the
 correction is a second public message.
 
-Post one ordinary PR conversation comment that maps every triaged item to its outcome:
-- **Fixed** → name the fix and verification.
-- **Not fixed** (false positive, intentionally kept, or deferred) → give the reasoning.
+**Answer every inline thread individually, and resolve the ones you fixed.** Each reply carries that
+thread's outcome in one or two sentences: **Fixed** → name the fix and verification. **Not fixed**
+(false positive, intentionally kept, or deferred) → give the reasoning. Resolve a thread only when its
+fix landed — resolving a thread you refused to change preempts the reviewer's judgement, so a false
+positive gets a reply and stays open, and threads someone else resolved stay untouched. The mechanics:
 
-Leave inline review threads and their resolution unchanged unless the user expressly asks for thread-level
-handling. The configured language governs what you say **to the user** — the triage table, running
+```bash
+# reply — REST, in_reply_to takes the review comment's databaseId:
+gh api repos/<owner>/<repo>/pulls/<n>/comments -f body="$body" -F in_reply_to=<comment-id>
+# resolve — GraphQL, the thread's PRRT_ node id from step 2:
+gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id=<PRRT_…>
+```
+
+⛔ **Reply through the REST `in_reply_to` endpoint, never through the review surface.** GraphQL
+`addPullRequestReviewThreadReply` / `addPullRequestReviewComment` and REST `POST /pulls/<n>/reviews`
+with a `comments` array attach the reply to a **pending review draft**: it renders as `Pending`, is
+invisible to everyone but you, and publishes only when that review is submitted
+(`submitPullRequestReview`, event `COMMENT`). A round that replies this way looks unanswered to the
+reviewer. If a reply already shows Pending, submit the owning draft review to publish it.
+
+**Then post one ordinary PR conversation comment that maps every triaged item to its outcome** — the same
+fixed/not-fixed content. The per-thread replies cannot carry it all: summary-routed findings and Copilot's
+suppressed comments have no thread, and the summary is the only place a reader sees the round as a whole.
+
+The configured language governs what you say **to the user** — the triage table, running
 commentary, and final summary — and nothing you post to the PR, whose readers never saw this session's
 settings. Translate the triage into the comment body; do not paste it.
 
@@ -206,7 +225,8 @@ Post with `gh pr comment <number> --body <body>` (or the host's ordinary PR conv
 Word the comment to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
 commits, the comment is still true.
 
-**Scan the comment body for an accidental closing keyword before posting it.** GitHub closes on
+**Scan every body you post — each thread reply and the summary comment — for an accidental closing
+keyword before posting it.** GitHub closes on
 `close|fix|resolve` co-occurring with `#N`, and **it does not read negation** — "does **not** close #12" closes
 #12. The trap hunts exactly the comments this step produces, because "this does not fully fix #12" is both the
 honest wording and the trigger:
@@ -217,7 +237,9 @@ grep -icE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"  
 
 Rephrase to a non-closing verb (`addresses #12`, `part of #12`) or drop the `#`; never rely on the negation.
 
-Re-read the PR conversation and confirm the ordinary comment is present and covers every triaged item.
+Re-read the PR conversation and the thread list: confirm the summary comment is present and covers every
+triaged item, each thread carries its reply (visible, not Pending), and every fixed thread reads
+`isResolved: true`.
 
 ### 8. Push the fixes — confirm first
 
@@ -250,7 +272,8 @@ git push --force-with-lease=<branch>:<expected-remote-sha> origin HEAD:<branch>
 ## Output
 
 End with: what was fixed (and where), what was rejected as a false positive (and why), the resulting
-git history, and any items deferred to the user. Be explicit about anything not yet pushed.
+git history, the threads resolved and the ones deliberately left open, and any items deferred to the
+user. Be explicit about anything not yet pushed.
 
 After a **fixup** run, name the fixups still standing and where they get folded: a repo that squash-merges
 absorbs them at merge, so nothing more is needed; a repo that rebase- or merge-commits needs them folded
