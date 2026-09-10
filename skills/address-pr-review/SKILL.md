@@ -1,6 +1,6 @@
 ---
 name: address-pr-review
-description: "Read the review feedback already left on a pull request, triage each comment against the actual source (real bug vs. false positive), fix the real ones surgically, keep the git history clean by folding fixes into the right commit, and close the loop by replying to / resolving threads and updating the PR. This CONSUMES existing review comments and acts on them — it is the counterpart to skills that GENERATE a review (e.g. gitnexus-pr-review, /review). Examples: \"address the review comments on this PR\", \"the bot left review comments, fix the real ones\", \"how do I handle the feedback on PR #1\", \"apply the reviewer's suggestions and clean up the git log\", \"triage the Copilot review and reply to the wrong ones\"."
+description: "Read the review feedback already left on a pull request, triage each comment against the actual source (real bug vs. false positive), fix the real ones surgically, keep the git history clean by folding fixes into the right commit, and close the loop with ordinary PR conversation comments. This CONSUMES existing review comments and acts on them — it is the counterpart to skills that GENERATE a review (e.g. gitnexus-pr-review, /review). Examples: \"address the review comments on this PR\", \"the bot left review comments, fix the real ones\", \"how do I handle the feedback on PR #1\", \"apply the reviewer's suggestions and clean up the git log\", \"triage the Copilot review and explain the conclusions\"."
 ---
 
 # Address PR review feedback
@@ -11,7 +11,7 @@ and **landing the fixes without making the git history ugly**. Bot reviewers (Co
 produce confident-sounding comments that are sometimes wrong; never apply a comment without verifying it
 against the source first.
 
-- **Language.** Write every PR-facing string — reply bodies, PR title/description edits — in **English**;
+- **Language.** Write every PR-facing string — ordinary PR conversation comments, PR title/description edits — in **English**;
   talk to the user in their configured language. Step 7 is where the two get confused, and has the reason.
 
 ## Workflow
@@ -41,7 +41,7 @@ three come from `pull_request_read` (same `owner` / `repo` / `pullNumber`):
   COMMENTED) and the summary body.
 - **② Inline review comments** (`method: get_review_comments`) — the most actionable feedback, bound to a
   file + line. Returns review **threads** with `isResolved` / `isOutdated` **and each thread's node id
-  (`PRRT_…`)** — the id a thread is resolved by.
+  (`PRRT_…`)** for identifying its state during triage.
 - **③ Issue comments** (`method: get_comments`) — the PR conversation, not tied to any line.
 
 **Page each of the three to exhaustion — they paginate independently, and 100 is a page size, not a
@@ -65,7 +65,7 @@ sum is what makes a dropped page visible.
 For each comment, **open the cited file/line and decide before touching anything**:
 
 - **Real bug** → note the exact fix and which commit it belongs to.
-- **False positive** → note why; you will reply on the PR instead of changing code.
+- **False positive** → note why; record the reasoning in the ordinary PR conversation comment instead of changing code.
 - **Out of scope / opinion** → flag for the user, do not silently act.
 
 Common false positives to watch for:
@@ -165,14 +165,14 @@ GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
 
 Avoid a noisy standalone "address review comments" commit unless the user wants the review trail in history.
 
-### 7. Re-read, then reply and resolve — before pushing
+### 7. Re-read, then post an ordinary PR conversation comment — before pushing
 
 **Re-read all three buckets first** — step 2's calls, paged to exhaustion again — and diff the result
 against what you triaged. Fixing takes time, and the PR moved while you worked. Three things surface:
 
 - **New comments** — a reviewer or bot added them since step 2. Triage them (step 3); if real, loop back
-  through steps 4–6 before replying to anything.
-- **Threads someone else already resolved** — leave them alone: no reply, no re-resolve.
+  through steps 4–6 before posting the ordinary comment.
+- **Threads someone else already resolved** — record their state, but leave every thread unchanged.
 - **Comments the first pass never saw** — it stopped a page short. Triage these too.
 
 **Re-read the PR's own `state` in the same call, not only its comments.** A round takes long enough
@@ -180,9 +180,9 @@ that the PR can be *merged* while you are addressing it — measured: merged mid
 did not connect the merge to the round in flight. That invalidates the landing plan, not the fixes,
 and it fails in three places at once:
 
-- Every SHA already named in this round's replies becomes **unreachable from any remote ref**. The
-  replies stay true and their pointers stop resolving, so a reader chases dead SHAs. Post a pointer
-  correction on each affected thread and one on the PR, naming where the work went.
+- Every SHA already named in this round's ordinary comment becomes **unreachable from any remote ref**. The
+  comment stays true and its pointers stop resolving, so a reader chases dead SHAs. Post one pointer
+  correction in the PR conversation, naming where the work went.
 - A squash merge makes the branch's own commits **unmergeable** — they replay content `main` already
   has. Move the delta by patch instead: `git diff <merged tip> <local tip>` applied onto a branch off
   the new `main`, verified blob-by-blob (`git hash-object <file>` against `git rev-parse <tip>:<file>`)
@@ -190,32 +190,25 @@ and it fails in three places at once:
 - The fixes become a **follow-up PR** with real commit messages, not fixups of commits that merged.
   Link it with `Relates #<merged>` and say in the body why it arrives as separate commits.
 
-Check `state` before you write a reply, since that is the cheap moment: after the reply is posted the
+Check `state` before you post the comment, since that is the cheap moment: after the comment is posted the
 correction is a second public message.
 
-Then, two buckets, two behaviors:
-- **Fixed** → reply explaining the fix, then **resolve** the thread.
-- **Not fixed** (false positive, intentionally kept, or deferred) → reply with the reasoning and
-  **leave the thread open** so a human reviewer sees it and decides. Never resolve what you did not change.
+Post one ordinary PR conversation comment that maps every triaged item to its outcome:
+- **Fixed** → name the fix and verification.
+- **Not fixed** (false positive, intentionally kept, or deferred) → give the reasoning.
 
-The re-read just handed you every thread's id (`PRRT_…`) and its comments — no extra lookup needed.
+Leave inline review threads and their resolution unchanged unless the user expressly asks for thread-level
+handling. The configured language governs what you say **to the user** — the triage table, running
+commentary, and final summary — and nothing you post to the PR, whose readers never saw this session's
+settings. Translate the triage into the comment body; do not paste it.
 
-**Every reply body is English.** The configured language governs what you say **to the user** — the triage
-table, the running commentary, the final summary — and nothing you post to the PR, whose readers
-(reviewers, bots, future contributors) never saw this session's settings. The confusion happens here and
-nowhere else in this skill, because step 3's verdict is already written in the language you talk to the
-user in: **translate it into the `body`, do not paste it.**
+Post with `gh pr comment <number> --body <body>` (or the host's ordinary PR conversation-comment operation).
+Word the comment to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
+commits, the comment is still true.
 
-- **Reply:** `add_reply_to_pull_request_comment` with `commentId` (the comment's databaseId) and `body`.
-- **Resolve** (only the fixed ones): `pull_request_review_write` with `method: resolve_thread` and
-  `threadId` (the `PRRT_…` id).
-
-Word each reply to the fix itself, not to a push that hasn't happened — if the push stops on remote-only
-commits, the replies are still true.
-
-**Scan every reply body for an accidental closing keyword before posting it.** GitHub closes on
+**Scan the comment body for an accidental closing keyword before posting it.** GitHub closes on
 `close|fix|resolve` co-occurring with `#N`, and **it does not read negation** — "does **not** close #12" closes
-#12. The trap hunts exactly the replies this step produces, because "this does not fully fix #12" is both the
+#12. The trap hunts exactly the comments this step produces, because "this does not fully fix #12" is both the
 honest wording and the trigger:
 
 ```bash
@@ -224,28 +217,12 @@ grep -icE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"  
 
 Rephrase to a non-closing verb (`addresses #12`, `part of #12`) or drop the `#`; never rely on the negation.
 
-Re-read the threads you touched and confirm the end state: fixed → resolved, not-fixed → open.
-
-Two traps in that confirmation, both measured:
-
-- ⛔ **`resolvedBy.login` cannot tell you *who* resolved a thread.** Anything done through `gh` runs on
-  the user's credentials, so "the user clicked it" and "I clicked it" are the same value. Attribution
-  can only come from **your own operation log**, and that log has to (a) discriminate — grep the
-  **success output** (`OK resolved <tid>`), never the script text, since the resolve list and the
-  leave-open list sit in the same file — and (b) survive: write it under `~`, never `/tmp` (measured:
-  darwin cleared `/tmp` mid-session), because a compacted tool result is not on disk either.
-- ⛔ **A thread's state and its own text contradict each other, in both directions.** A batch resolve
-  erases the "leaving this open" reply you just wrote (the loop cannot read its own replies), and a
-  silent fix leaves "real, and not yet fixed" standing on a correctly-resolved thread. The check is
-  mechanical: compare `isResolved` against **your own last reply on that thread** — one pass finds
-  both; looking at state alone, or text alone, finds neither. (Measured: 7 candidates on one PR, 5
-  real.) **Discipline fails in front of a batch operation, because a batch is exactly where the
-  discipline is not present.**
+Re-read the PR conversation and confirm the ordinary comment is present and covers every triaged item.
 
 ### 8. Push the fixes — confirm first
 
-Replying first is deliberate: pushing marks the affected lines' comments as outdated, and GitHub collapses
-outdated threads out of sight — a reply landing after that is far easier to miss.
+Posting first is deliberate: pushing marks affected lines' comments as outdated, and GitHub collapses them
+out of sight — a later PR conversation comment is easier to miss.
 
 Updating the PR is outward-facing: **confirm with the user before pushing**, and guard against clobbering
 remote work first — in either mode:
