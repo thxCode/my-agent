@@ -22,8 +22,10 @@ a supervised crew.
    target window to create; report that and stop rather than silently substituting a subagent.
 3. Run `orca skills get orca-cli` with the resolved executable and follow its current **Full Handoffs** guide.
    Do not copy flags from this skill or memory.
-4. Resolve the target agent from the user's request; ask only if it is missing. Use the current checkout when
-   ownership continues exactly where this session stopped, or a separate worktree when the tasks could overlap.
+4. Resolve the target agent from the user's request — claude, codex, kimi, or qwen; ask only if it is missing.
+   An unattended target runs in its provider's unattended approval mode (`qwen --yolo` or the provider's
+   equivalent). Use the current checkout when ownership continues exactly where this session stopped, or a
+   separate worktree when the tasks could overlap.
 
 ## Write the durable brief
 

@@ -38,6 +38,9 @@ track, coordinate, or return results.
 - Cap active workers at 3–5 unless the user explicitly asks for a different limit.
 - Show the user the objective, task map, agent provider, placement, and write ownership before spending quota,
   unless their request already authorized an unattended supervised run.
+- The window provider is the user's call — claude, codex, kimi, or qwen. An unattended worker runs in its
+  provider's unattended approval mode (`qwen --yolo` or the provider's equivalent); a worker that stalls on an
+  approval prompt is a placement defect, so follow the live guide's `--agent` or low-level topology path.
 
 ## Coordinate
 

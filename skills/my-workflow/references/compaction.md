@@ -1,7 +1,8 @@
 # Context checkpoint
 
-Shared by `my-plan`, `my-debug`, `my-build`, `my-ship`, and `my-crew`. Claude, Codex, and Kimi expose different
-context meters and reset/compaction controls, so this reference defines the durable state, not a host command.
+Shared by `my-plan`, `my-debug`, `my-build`, `my-ship`, and `my-crew`. Claude, Codex, Kimi, and Qwen expose
+different context meters and reset/compaction controls, so this reference defines the durable state, not a host
+command.
 
 ## When to checkpoint
 

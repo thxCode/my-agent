@@ -12,8 +12,8 @@ version-matched `orca-cli` and `orchestration` skills define command syntax.
 | Small same-session helper exchange | The current host's native subagent messaging |
 | Substantial context across any agent/provider | A file, with only its path sent through the selected channel |
 
-Claude, Codex, and Kimi do not share one native message bus. Do not encode one host's message-tool names into a
-cross-provider dispatch. Orca is authoritative for cross-window and supervised lifecycle state.
+Claude, Codex, Kimi, and Qwen do not share one native message bus. Do not encode one host's message-tool names
+into a cross-provider dispatch. Orca is authoritative for cross-window and supervised lifecycle state.
 
 ## Provenance and authority
 

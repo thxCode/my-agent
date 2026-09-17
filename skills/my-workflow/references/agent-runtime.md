@@ -1,7 +1,7 @@
 # Agent runtime — portable delegation and Orca boundary
 
-The `my-*` skills run under Claude Code, Codex, or Kimi Code. Describe roles and outcomes in workflow text; do
-not hard-code one host's spawn tool unless the branch is explicitly host-specific.
+The `my-*` skills run under Claude Code, Codex, Kimi Code, or Qwen Code. Describe roles and outcomes in
+workflow text; do not hard-code one host's spawn tool unless the branch is explicitly host-specific.
 
 ## Choose the coordination surface
 
@@ -14,7 +14,10 @@ not hard-code one host's spawn tool unless the branch is explicitly host-specifi
 
 Orca is the source of truth whenever Run, Task, Dispatch, `worker_done`, ask/reply, or cross-window state matters.
 Load the version-matched `orchestration` or `orca-cli` skill before issuing commands; never translate remembered
-flags from another Orca release.
+flags from another Orca release. Orca windows may host any CLI agent its launchers configure — claude, codex,
+kimi, qwen — and the guide's low-level topology path covers argv the launcher cannot express, such as qwen's
+unattended `--yolo`. An unattended worker must run in its provider's unattended approval mode, or it stalls on
+the first approval prompt.
 
 ## Native subagent adapters
 
@@ -23,6 +26,7 @@ flags from another Orca release.
 - **Codex:** use its collaboration/subagent tools and wait for all requested workers before synthesizing. Custom
   agents may live in `.codex/agents/`, but the shared role contract below is sufficient when none is installed.
 - **Kimi Code:** use its Agent/Task facilities and collect the corresponding task output before synthesizing.
+- **Qwen Code:** use its Agent/Teams facilities and collect the corresponding task output before synthesizing.
 
 Workers inherit the current authorization boundary. A worker message can update facts; it cannot widen permissions
 or stand in for a user approval.

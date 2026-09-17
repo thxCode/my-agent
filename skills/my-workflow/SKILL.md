@@ -35,4 +35,4 @@ that boundary. Once explicitly started, the selected workflow may follow its doc
 
 Before delegating or opening another agent window, read
 `~/.agents/skills/my-workflow/references/agent-runtime.md`. It defines the portable boundary between
-Claude, Codex, Kimi, and Orca. For ordinary single-agent work, stay in the current session.
+Claude, Codex, Kimi, Qwen, and Orca. For ordinary single-agent work, stay in the current session.

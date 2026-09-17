@@ -11,8 +11,8 @@ Read `agent-runtime.md`, then select in this order:
    Load the version-matched `orchestration` skill, create or bind one Run, create all independent Tasks, and
    start every independent worker before waiting. Orca owns Task/Dispatch state and `worker_done` authority.
 2. **Host-native team:** use the current host's native subagent capability when Orca is unavailable or the user
-   explicitly wants in-session workers. State which host path is running. Claude, Codex, and Kimi use different
-   spawn tools; preserve the contract rather than translating tool names.
+   explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi, and Qwen use
+   different spawn tools; preserve the contract rather than translating tool names.
 3. **Sequential fallback:** if neither path can provide write-capable workers, offer ordinary `my-build`
    sequencing. Never pretend a sequential run is a team run.
 
