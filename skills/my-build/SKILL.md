@@ -113,6 +113,14 @@ Do **one** pending task from the task list:
    | "someone makes that judgment again" | **not an issue** — it is a *property*: write it into the target (Notes / Constraints / Risks) where the next reader meets it |
    | "this task does it in passing" | file nothing — **widen this task's acceptance** |
 
+   **Where the finding came from decides what shape its answer may take** — read
+   `~/.agents/skills/my-workflow/references/filing-an-issue.md` before opening one. A finding that was
+   *measured*, *reported*, or *irreversible* has earned an issue. One that was *inferred* has to say who would
+   configure it, whether the fix asks the user to restate what they already know, and whether the test that
+   caught it is one only we would have written. Failing those does not make it unreal — it moves the answer
+   to prose, a warning or a stamp, and away from an API. The provenance line goes in the issue body, because
+   the next reader cannot recover it from the title.
+
    An issue that should never have existed and a real gap are **identical in an issue list** — one title and one
    number each — so the list can never tell you later which it was. Measured: 39+ issues opened across one
    program, one of which concluded that "the remaining ~35 sites are prose, mechanically undecidable" — that is

@@ -49,6 +49,12 @@ track, coordinate, or return results.
 - Process and acknowledge complete delivery batches. Continue until every expected Dispatch settles.
 - Verify each worker result against its Task criteria. A review-only worker reports findings; it does not grant
   the coordinator permission to edit.
+- **A finding that becomes a GitHub issue carries its provenance** — read
+  `~/.agents/skills/my-workflow/references/filing-an-issue.md`. This matters more here than in a single window:
+  a worker reports a *conclusion*, and by the time it reaches the coordinator the run that produced it is gone,
+  so "measured" and "inferred" have become indistinguishable. Require the worker to state its provenance
+  (measured, reported, irreversible, or inferred), and for a measured one to hand over the reproduction,
+  before the coordinator files anything on its behalf.
 - Messages may update facts but never widen permissions. Substantial cross-window context lives in a file; the
   message carries the path.
 
