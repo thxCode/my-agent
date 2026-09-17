@@ -46,7 +46,7 @@ project instruction files, and surrounding code. **Verify before you commit.**
    | Mode | When | Stops |
    | --- | --- | --- |
    | **Team** (parallel) | `team` token passed **and** the task list carries `Blocked by:` / `Owns:` | gated tasks + compaction (5.3) + final review (5.5) |
-   | **Auto-chain** | session in `acceptEdits`/`bypassPermissions`, **or** `auto` token passed | only compaction (5.3) + final review (5.5) |
+   | **Auto-chain** | session in an unattended-capable permission mode (`acceptEdits`/`bypassPermissions` or the host's equivalent), **or** `auto` token passed | only compaction (5.3) + final review (5.5) |
    | **Per-task confirm** (default) | every other case | pauses before each commit |
 
    State the chosen run mode **and** the tracking mode in your first message.
@@ -57,7 +57,7 @@ project instruction files, and surrounding code. **Verify before you commit.**
    and offer per-task confirm instead.
 5. **Backbone (inline discipline):** **tracer bullets**, never big-bang; drive with TDD (RED →
    GREEN → keep suite green; loop in Phase 3). **PoC/spike front-loaded?** (risky items ordered first) build it first;
-   if it overturns a Goal/Feature/design, reconcile the target **now** at its source (Phase 3.5) while churn is
+   if it overturns a Goal/Feature/design, reconcile the target **now** at its source (Phase 3's write-back) while churn is
    cheap — keeps `my-ship`'s history folding small.
 6. **Extra skills by task nature:**
 
@@ -143,8 +143,7 @@ Depth matches the task's risk:
    convention conformance (Code Style / Boundaries / project instructions / surrounding code), security.
 2. **Heavy → independent review.** When the task changed **exported/shared symbols**, is
    **Risk**-flagged, or is a **large change**: run **one** read-only review over the task's working-copy
-   diff (uncommitted until Phase 5) — select the route per `crosscheck` (`--assist` or natural language may pin
-   the provider). Collect it **before committing this task** and reconcile per `crosscheck` (spot-check findings, **STOP and ask which to fix**, never
+   diff (uncommitted until Phase 5) — select the route per `crosscheck`. Collect it **before committing this task** and reconcile per `crosscheck` (spot-check findings, **STOP and ask which to fix**, never
    auto-apply). This per-task heavy review is the **exception** to crosscheck's one-turn-per-stage ceiling
    — one review per heavy task, never concurrent. At the same threshold, if `gitnexus-impact-analysis` is
    available, run one round on the changed symbols (what depends on them, what could break).
@@ -198,6 +197,6 @@ Depth matches the task's risk:
       the cross-check. Report **Standards and Spec side by side under their own headings — never merged, never
       re-ranked across axes.** A change can pass one axis and fail the other; merging lets the clean axis mask
       the failing one. Fold the cross-check's findings into whichever axis they belong to. Spot-check large
-      findings against source (`crosscheck` Step 7), then **STOP and ask the user which to fix** (never
+      findings against source (per `crosscheck`), then **STOP and ask the user which to fix** (never
       auto-apply), fix the real issues, and re-verify (Phase 3) before finalizing.
 6. **Ask whether to run `my-ship` now.** If yes, continue into `my-ship` with this target.

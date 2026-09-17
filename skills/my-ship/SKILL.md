@@ -78,7 +78,7 @@ Is the change **architecturally significant** (new/changed public API, new depen
 **Barrier first — cross-check (apply `crosscheck`), before touching history.** Collect the
 ship review kicked off in Phase 1 using the selected route's status/result mechanism. If it was deferred there but
 Phases 2–4 changed the diff (e2e fixes / new commits), run **one** review now over that changed scope.
-Spot-check findings against source (Step 7); **STOP and ask the user which to fix** (never auto-apply);
+Spot-check findings against source (per `crosscheck`); **STOP and ask the user which to fix** (never auto-apply);
 fold accepted fixes in **now**, so step 5's history-tidy squashes them into their logical commit.
 Nothing warranted (de-dup skip, no changes, or neither tool available) → say so and continue.
 

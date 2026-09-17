@@ -89,7 +89,7 @@ Root Cause from the artifact, and Phase 5 fills that same file in place rather t
 - **Barrier & reconcile — apply `crosscheck`.** Collect the diagnosis kicked off in Phase 1
   through the selected route's status/result mechanism. If none was launched but Phase 2 revealed complexity, run one
   now (the read-only independent worker selected by `crosscheck`, seeded from
-  symptom + repro). Reconcile its verdict against yours per the skill (Step 7): lock the Root Cause
+  symptom + repro). Reconcile its verdict against yours per the skill: lock the Root Cause
   only once you agree or can explain the divergence; surface any unresolved disagreement to the user.
   **Record its verdict in the artifact's Root Cause.**
 - **Simple bug / neither tool available:** skip and note it.

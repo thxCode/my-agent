@@ -26,7 +26,7 @@ track, coordinate, or return results.
 3. Confirm the session is Orca-hosted and the runtime is reachable. If not, report the exact missing
    precondition; do not substitute a host-native subagent and call it Orca orchestration.
 4. Run `orca skills get orchestration` with the resolved executable and follow that version-matched guide for
-   every command, lifecycle signal, and recovery. Do not use remembered flags from this file.
+   every command, lifecycle signal, and recovery.
 
 ## Plan the Run
 
