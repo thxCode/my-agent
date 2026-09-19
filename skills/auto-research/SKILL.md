@@ -81,7 +81,8 @@ round:0, stale_count:0, pivots:0, status:"running"}`), `directions.json` (`[]`),
 clobber.
 
 **1 — Decompose.** Break the question into **N independent dimensions** (distinct sub-questions / angles /
-viewpoints). For a sprawling topic, lean on `agent-skills:planning-and-task-breakdown`. Append each to
+viewpoints). Independent means a finding on one does not change what you would search for on another; a
+dimension that depends on another's answer belongs in a later round, not this list. Append each to
 `directions.json`.
 
 **1.5 — Mode gate (the plan checkpoint).** This is the auto-research analog of Claude Code's plan-mode exit: the

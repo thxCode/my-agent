@@ -45,7 +45,7 @@ project instruction files, and surrounding code. **Verify before you commit.**
 
    | Mode | When | Stops |
    | --- | --- | --- |
-   | **Team** (parallel) | `team` token passed **and** the task list carries `Blocked by:` / `Owns:` | gated tasks + compaction (5.3) + final review (5.5) |
+   | **Team** (parallel) | the task list carries `Blocked by:` / `Owns:`, **and** either the `team` token was passed or the session is Orca-hosted | gated tasks + compaction (5.3) + final review (5.5) |
    | **Auto-chain** | session in an unattended-capable permission mode (`acceptEdits`/`bypassPermissions` or the host's equivalent), **or** `auto` token passed | only compaction (5.3) + final review (5.5) |
    | **Per-task confirm** (default) | every other case | pauses before each commit |
 
@@ -55,6 +55,11 @@ project instruction files, and surrounding code. **Verify before you commit.**
    one-task-at-a-time sequencing.** Everything else in this skill still applies. `team` passed but the task
    list has no `Blocked by:` / `Owns:` → don't improvise a DAG: say so, recommend `my-plan` to annotate it,
    and offer per-task confirm instead.
+
+   **Orca-hosted and the DAG is already annotated?** Detect the host with **Detect the Orca host** in
+   `agent-runtime.md`. If two or more tasks are unblocked with disjoint `Owns:`, offer Team without waiting for
+   the token — the workers are a command away and sequencing them wastes wall-clock. Offer, do not assume: the
+   user still approves the frontier and placement before you spend their quota.
 5. **Backbone (inline discipline):** **tracer bullets**, never big-bang; drive with TDD (RED →
    GREEN → keep suite green; loop in Phase 3). **PoC/spike front-loaded?** (risky items ordered first) build it first;
    if it overturns a Goal/Feature/design, reconcile the target **now** at its source (Phase 3's write-back) while churn is
@@ -64,11 +69,11 @@ project instruction files, and surrounding code. **Verify before you commit.**
    | Task nature | Skill |
    | --- | --- |
    | Refactor (rename/extract/split/move) | `gitnexus-refactoring` **first** (if available) |
-   | API / interface design | `agent-skills:api-and-interface-design` |
-   | Risk item (flagged in target) | `agent-skills:doubt-driven-development` |
-   | Frontend / UI | `agent-skills:frontend-ui-engineering` |
+   | API / interface design | `api-and-interface-design` |
+   | Risk item (flagged in target) | `crosscheck` — its spend gate already names a risk-flagged target |
+   | Frontend / UI | `frontend-ui-engineering` |
    | Rendered screenshot (render/responsive/component shot) | `crawl4ai-search` |
-   | Interactive UI debug (clicks/console/network) | `agent-skills:browser-testing-with-devtools` |
+   | Interactive UI debug (clicks/console/network) | `browser-testing` |
 7. **Confirm the build/test environment before the loop.** Read the environment the target pinned in
    **Commands** — **local or remote** (if remote, its access method); if unpinned (older/unplanned target), ask.
    **Smoke-check** the build/test commands run in that environment before starting — a broken environment found
@@ -84,16 +89,20 @@ Do **one** pending task from the task list:
 3. **Conform:** follow Code Style & Boundaries plus applicable project instructions; match surrounding code; run lint/format (from
    Commands).
 4. **Simplicity & readability discipline (continuous, while coding — never overrides project instructions):**
-   - **Decision ladder before writing** — need this at all? → codebase already has it? → standard library? →
+   - **Decision ladder before writing** (from [`ponytail`](https://github.com/DietrichGebert/ponytail), MIT;
+     see `CREDITS.md`) — need this at all? → codebase already has it? → standard library? →
      native platform feature? → an installed dependency covers it? → can it be one line? → *then* minimal
-     working code. **Deletion over addition; boring over clever.**
+     working code. **Deletion over addition; boring over clever.** Climb it after you understand the change,
+     never instead: the smallest diff in the wrong place is a second bug.
    - **Simplify anti-patterns** — deep nesting → guard clauses / extract; long function → split by
      responsibility; nested ternary → if/else; generic names → descriptive; duplicated logic → shared function;
      dead code → remove after confirming.
    - **Never simplify away** — input validation, data-loss-preventing error handling, security, accessibility,
      explicitly requested features.
-   - **Heavy/at-scale simplification** → escalate to `agent-skills:code-simplification` (in Phase 4 review or
-     end-of-build).
+   - **Heavy/at-scale simplification** → raise it as a finding in the Phase 5 review instead of widening the
+     task; `~/.agents/skills/my-workflow/references/review-doctrine.md` gives the finding form.
+   - **Accepting a known ceiling** (a global lock, a linear scan, a naive heuristic) → leave the `shortcut:`
+     marker that same file defines, naming the ceiling and what would justify revisiting it.
 5. **Unclear spec detail → ask the user** (don't guess). For a bounded factual question you may
    delegate it to the read-only independent worker selected by `crosscheck` — apply
    `crosscheck` (read-only, foreground, one tightly-scoped question). Keep this to **one bounded
@@ -184,8 +193,9 @@ Depth matches the task's risk:
    2. **User review** — present an overall diff overview; ask whether anything needs adjustment (yes → Phase 3,
       then back here).
    3. **Run the two axes in parallel** — separate contexts, so neither pollutes the other:
-      - **Standards** — `agent-skills:review` over the build (correctness, readability, architecture,
-        security, performance), carrying `~/.agents/skills/my-workflow/references/smells.md` as its baseline.
+      - **Standards** — apply `~/.agents/skills/my-workflow/references/review-doctrine.md` over the build.
+        It sets which reviewers to split out, what a finding must carry, and the verification pass every
+        candidate clears before you see it; `smells.md` is the catalog it draws on.
       - **Spec** — the `spec-reviewer` subagent, seeded with the **target and the diff only** — never your own
         conclusions about the build. It answers the one question the five axes never ask: did we build what was
         ordered?

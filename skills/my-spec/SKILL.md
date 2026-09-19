@@ -50,8 +50,8 @@ Infer it; anything not clearly a bug takes the Feature path.
 
    | Skill | When |
    | --- | --- |
-   | `agent-skills:interview-me` | underlying intent unclear / not in context (extract it, one question at a time) |
-   | `agent-skills:idea-refine` | idea present but vague (sharpen & stress-test) |
+   | `interview-me` | underlying intent unclear / not in context — extract it, one question at a time |
+   | `interview-me` (widen-then-narrow entry) | idea present but vague — sharpen and stress-test it |
    | `auto-research` | motivation depends on external facts (competitive analysis, prior art, sizing). Offer the discovered `auto-research` skill, then fold its digest into Motivation + stories' "so that `<benefit>`"; its gaps → Open Questions. One page settles it → `crawl4ai-search` or the host's ordinary web reader |
 
    Stories already concrete → skip refinement.
@@ -63,7 +63,7 @@ Infer it; anything not clearly a bug takes the Feature path.
 (lightweight artifact under `.claude/debugs/` → `my-build`).
 
 1. **Stay strictly read-only** while investigating — no edits until Phase 5.
-2. Find the root cause: `gitnexus-debugging` if available, else `agent-skills:debugging-and-error-recovery`.
+2. Find the root cause: `gitnexus-debugging` if available, else `debugging-and-error-recovery`.
 3. Carry the **root-cause analysis + reproduction** into Phase 3. For a bug, Phase 3 reframes: objective = fix
    the root cause; acceptance = the bug no longer reproduces + a regression guard; user story = the repro scenario.
 

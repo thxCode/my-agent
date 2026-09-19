@@ -30,8 +30,8 @@ Routing rule for frontend/UI work:
 | Need | Tool |
 | --- | --- |
 | Confirm a render / responsive viewports / a component shot | **`crawl4ai-search`** (`scripts/screenshot.py`) |
-| Interactive debugging — clicks, console, network, form fills | `agent-skills:browser-testing-with-devtools` |
-| Build/iterate the UI itself (components, layout, state) | `agent-skills:frontend-ui-engineering` |
+| Interactive debugging — clicks, console, network, form fills | `browser-testing` |
+| Build/iterate the UI itself (components, layout, state) | `frontend-ui-engineering` |
 
 For a spec that documents existing UI, a screenshot of the current screen is good grounding evidence. For external
 facts/prior art, `my-spec` already routes to `auto-research` — which now fetches via crwl per the contract above.

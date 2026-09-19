@@ -8,7 +8,7 @@ description: >-
   markdown, scrape JS-heavy page / SPA, screenshot a page / UI / localhost, capture rendered page, md-fit,
   BM25 content filter, batch crawl, schema extraction. SKIP for a plain static page the agent only needs to
   read once (built-in WebFetch is faster, no ~2s browser tax), and for interactive debugging — clicks, console,
-  network, form fills — which belongs to agent-skills:browser-testing-with-devtools (Chrome DevTools MCP).
+  network, form fills — which belongs to browser-testing.
 ---
 
 # crawl4ai-search
@@ -72,8 +72,8 @@ scripts/screenshot.py <url> --element ".pricing-card" --out <scratch>/card.png -
 
 **Boundary — do not reach past static rendering.** Anything interactive — clicking, typing, reading the console,
 inspecting network requests, multi-step flows — is **not** this skill. Delegate to
-**`agent-skills:browser-testing-with-devtools`** (Chrome DevTools MCP). crawl4ai gives you a snapshot; DevTools gives
-you a live, inspectable session.
+**`browser-testing`**, which resolves whatever browser bridge this host has. crawl4ai gives you a
+snapshot; a bridge gives you a live, inspectable session.
 
 ---
 
@@ -81,8 +81,8 @@ you a live, inspectable session.
 
 - **Plain static page the agent just needs to read once** → built-in `WebFetch`. crawl4ai pays a ~2s browser
   cold-start tax; for static HTML it buys nothing.
-- **Interactive frontend debugging** (DOM / console / network / clicks) → `agent-skills:browser-testing-with-devtools`.
-- **Building/iterating a UI itself** (components, layout, state) → `agent-skills:frontend-ui-engineering`; come here
+- **Interactive frontend debugging** (DOM / console / network / clicks) → `browser-testing`.
+- **Building/iterating a UI itself** (components, layout, state) → `frontend-ui-engineering`; come here
   only for the screenshot.
 
 ## Advanced (secondary)

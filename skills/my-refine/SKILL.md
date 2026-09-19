@@ -1,6 +1,6 @@
 ---
 name: my-refine
-description: Audit and streamline skills, agent contracts, and workflow references.
+description: Audit and streamline skills, agent contracts, and workflow references, or check upstream drift.
 disable-model-invocation: true
 ---
 
@@ -25,6 +25,8 @@ Prompt assets have no test suite, so Phase 6's mechanical checks are the complet
    - **A path** (a `skills/<name>/SKILL.md`, an agent, any file) → read it plus anything it points at. A single
      file has no cross-file surface: run Phase 3 in full, and from Phase 2 run only **Unenforced promise** and
      the pointer half of **Unreachable rule**. Say which probes are out of scope for this target.
+   - **`sync`** → a different job entirely: not this repository against itself, but this repository against
+     the upstreams it distilled from. Go to **Sync lane** and run none of the phases below.
 2. **Baseline.** `git status --porcelain` — an unclean tree means the diff at the end won't be yours alone, so
    ask how to handle it first. Record `wc -c` for every file in scope; Phase 7 reports against it.
 
@@ -106,3 +108,31 @@ predict-then-reconcile step is what keeps a small result from being written up a
 
 Close with what you left alone and why. That list is the evidence the pass exercised judgement rather than
 manufacturing findings.
+
+## Sync lane
+
+Several files here are distilled from other people's repositories. A distillation is a fork the moment it is
+written, and nothing tells you when the original moved. This lane answers one question: **what changed
+upstream since we read it?** It never rewrites anything.
+
+1. **Build the map.** `CREDITS.md` holds one commit per upstream and a table of derived file → upstream
+   path. Each derived file repeats its upstream in a line under its title. Join them; a derived file naming
+   an upstream that `CREDITS.md` does not list, or a table row whose file carries no such line, is a finding
+   before you fetch anything.
+2. **Fetch shallow, into a temporary directory.** Clone each upstream at depth 1 on its default branch, plus
+   the recorded commit, somewhere under the system temporary directory. Never inside this repository, and
+   never record a local checkout path — the repository has to stay portable across machines.
+   No network → say so and stop. A sync that silently reports "no drift" because it could not reach the
+   remote is worse than no sync.
+3. **Diff, per source file, recorded commit against the default branch.** Sort what comes back into three:
+   - **Upstream gained something we do not have.** The judgement call — most of it will be material we
+     deliberately left out. Report it with enough detail to decide, and do not assume new means wanted.
+   - **Upstream changed or removed something we distilled from.** The one that matters. Our text now rests
+     on a claim its author has revised; quote both sides.
+   - **The source file is gone or renamed.** The provenance line is now a dead reference. Say where it went.
+4. **Report and stop.** Group by upstream, and per file give the commit range you compared. Nothing moved →
+   say that plainly; an upstream that has not changed is a real result.
+
+Re-distilling is a separate run: take the finding, invoke this skill again on the derived file with the
+ordinary phases, and update the commit in `CREDITS.md` only once the file actually reflects it. Bumping the
+recorded commit without re-reading the file is how a provenance line starts lying.

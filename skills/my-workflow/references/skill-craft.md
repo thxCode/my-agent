@@ -2,10 +2,11 @@
 
 Read by `my-refine`. Also worth reading by hand before writing a new skill or reference.
 
+Distilled from [`writing-great-skills`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-great-skills)
+(MIT, Copyright (c) 2026 Matt Pocock); see `CREDITS.md`. Its `GLOSSARY.md` carries the full treatment.
+
 A skill exists to wrangle determinism out of a stochastic system. **Predictability** — the agent taking the
-same *process* every run — is the root virtue, and every rule below serves it. Distilled from
-[`writing-great-skills`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-great-skills);
-its `GLOSSARY.md` carries the full treatment.
+same *process* every run — is the root virtue, and every rule below serves it.
 
 ## What to cut
 

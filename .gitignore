@@ -10,6 +10,7 @@
 
 !skills/
 !skills/address-pr-review/
+!skills/address-pr-review/**
 !skills/crawl4ai-search/
 !skills/crawl4ai-search/**
 !skills/auto-research/
@@ -19,9 +20,25 @@
 !skills/my-*/
 !skills/my-*/**
 
+# distilled from upstream repositories; provenance in each file and in CREDITS.md
+!skills/api-and-interface-design/
+!skills/api-and-interface-design/**
+!skills/browser-testing/
+!skills/browser-testing/**
+!skills/debugging-and-error-recovery/
+!skills/debugging-and-error-recovery/**
+!skills/documentation-and-adrs/
+!skills/documentation-and-adrs/**
+!skills/frontend-ui-engineering/
+!skills/frontend-ui-engineering/**
+!skills/interview-me/
+!skills/interview-me/**
+
+# a project-level copy would load the shared rules a second time; see README
 /CLAUDE.md
-/LICENSE
-/README.md
+!/CREDITS.md
+!/LICENSE
+!/README.md
 !statusline-command.sh
 
 # macOS

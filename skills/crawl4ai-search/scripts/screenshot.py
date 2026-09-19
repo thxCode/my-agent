@@ -11,7 +11,7 @@ or focus on one component. The `crwl` CLI has no screenshot flag — this is the
 screenshot path.
 
 NOT for interactive debugging (clicks, console, network) — delegate that to
-`agent-skills:browser-testing-with-devtools` (Chrome DevTools MCP).
+`browser-testing`, which resolves whatever browser bridge this host has.
 
 Usage:
   ./screenshot.py <url> --out shot.png [options]

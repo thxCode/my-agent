@@ -79,7 +79,7 @@ Root Cause from the artifact, and Phase 5 fills that same file in place rather t
 | Available | Use |
 | --- | --- |
 | `gitnexus-debugging` | invoke it first |
-| otherwise | `agent-skills:debugging-and-error-recovery` |
+| otherwise | `debugging-and-error-recovery` |
 
 **Reproduce reliably first, then localize.** Fix the underlying cause, not where it manifests.
 

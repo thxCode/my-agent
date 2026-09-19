@@ -43,13 +43,15 @@ project conventions (target **Code Style** & **Boundaries** when present, applic
    `my-build` already reviewed exactly these commits and nothing has changed the diff, **don't spend
    now** — defer to the Phase 5 barrier, which reviews only what Phases 2–4 change (e2e fixes).
    Otherwise (no-target mode, or the branch was never reviewed) background **one** branch review against
-   `<base>` (an adversarial approach review if the build was **Risk**-flagged),
-   overlapping Phases 2–4; collect it at Phase 5. Neither tool available → skip and say so.
+   `<base>` (an adversarial approach review if the build was **Risk**-flagged), carrying
+   `~/.agents/skills/my-workflow/references/review-doctrine.md` so a branch reviewed here is held to the
+   same finding form and verification pass as one reviewed in `my-build`.
+   Overlap it with Phases 2–4; collect it at Phase 5. Neither tool available → skip and say so.
 
 ## Phase 2 — End-to-end tests (only if the project has an e2e surface)
 
 Only if the project has an e2e surface — a project e2e skill, a bare e2e suite (make/npm/pytest target), or a
-browser-drivable UI (`agent-skills:browser-testing-with-devtools`):
+browser-drivable UI (`browser-testing`):
 
 1. **Ask whether to run e2e now.** No → Phase 3.
 2. **Route by the surface:**
@@ -70,7 +72,7 @@ browser-drivable UI (`agent-skills:browser-testing-with-devtools`):
 ## Phase 4 — Docs & ADRs
 
 Is the change **architecturally significant** (new/changed public API, new dependency, altered data flow)?
-- **Yes** → `agent-skills:documentation-and-adrs` to identify and complete the doc/ADR updates.
+- **Yes** → `documentation-and-adrs` to identify and complete the doc/ADR updates.
 - **No** → quick inline check: did this make any doc stale? Update it if so; else say so and move on. No ADR.
 
 ## Phase 5 — Confirm, tidy history & commit

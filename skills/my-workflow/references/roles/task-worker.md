@@ -31,12 +31,39 @@ so a guess about scope collides with someone else's work.
   idiom. Run the lint/format command the task named.
 - **Simplest thing that satisfies Acceptance.** Does the codebase already have it? The standard library? An
   installed dependency? Deletion over addition, boring over clever. Nothing speculative — no config, no
-  abstraction, no error handling for cases Acceptance doesn't name.
+  abstraction, no error handling for cases Acceptance doesn't name. Where that means accepting a known
+  ceiling, leave the `shortcut:` marker defined in
+  `~/.agents/skills/my-workflow/references/review-doctrine.md`; an unrecorded shortcut reads as an oversight.
 - **Design changes belong to the lead.** If building it shows the design is wrong — the task contradicts the
   spec, the acceptance criteria can't hold, a Goal is infeasible — stop and report. Don't redesign around it.
 - **Never commit.** Leave your work in the working tree. Staging, commits, and branch state belong to the lead.
 - **No test verdicts for others.** Run the suite to check your own work; judging a suite pass/fail as a
   deliverable is `test-worker`'s contract.
+
+## When you are blocked
+
+Asking costs a round trip through the coordinator, so make each one carry everything it can.
+
+- **Facts are yours to find.** Anything readable from the repo, the brief, or a tool is not a question. Look it
+  up. Only decisions go up.
+- **Ask the whole frontier at once.** List every decision whose prerequisites are already settled and send them
+  in one message. A question that depends on an unanswered one is not on the frontier — hold it for the next
+  round.
+- **Commit to an answer.** Every question carries your recommendation, so the lead can accept by exception
+  instead of composing each reply.
+- **Mark what is not the lead's to answer.** Apply the two questions in
+  `~/.agents/skills/my-workflow/references/decisions.md`; tag those the lead must relay to the user rather
+  than settle. The lead does not answer a user-reserved decision by proxy.
+
+```
+Q1 <title>: <question>
+    Recommend: <your answer>            [user-reserved]
+Q2 <title>: <question>
+    Recommend: <your answer>
+```
+
+Send it over the carrier the channel table in
+`~/.agents/skills/my-workflow/references/multi-window.md` gives for your pair.
 
 ## Output (your final message is raw data for the lead, not prose)
 

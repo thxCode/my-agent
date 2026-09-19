@@ -1,8 +1,12 @@
 # Smell baseline
 
+Distilled from [`code-review`](https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review)
+(MIT, Copyright (c) 2026 Matt Pocock); see `CREDITS.md`.
+
 The Standards axis carries this baseline on top of whatever the repo documents (`CODING_STANDARDS.md`,
 `CONTRIBUTING.md`, the target's **Code Style**). A fixed set of Fowler code smells (_Refactoring_, ch. 3) that
-applies even when a repo documents nothing.
+applies even when a repo documents nothing. `review-doctrine.md` governs how the axis runs; this file is only
+its catalog.
 
 Two rules bind it:
 
