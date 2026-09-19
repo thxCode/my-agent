@@ -96,7 +96,7 @@ helm template ... | grep ...   # for chart/manifest changes, prove the rendered 
 ```
 
 **Re-run the project's code generation on every round it has one — the test suite is not that check.**
-⛔ Don't gate this on "did I rebase this round": that is conversation state, unknowable after a resume or a
+NEVER gate this on "did I rebase this round": that is conversation state, unknowable after a resume or a
 compaction, **and it has no tree-observable substitute** — a rebased branch and a merely-behind branch have the
 same fork point, so any `first^` vs `merge-base` comparison returns equal in both cases (measured: it printed
 `SAME` for both). Running the generator *is* the check, and it costs one command.
@@ -206,7 +206,7 @@ gh api repos/<owner>/<repo>/pulls/<n>/comments -f body="$body" -F in_reply_to=<c
 gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id=<PRRT_…>
 ```
 
-⛔ **Reply through the REST `in_reply_to` endpoint, never through the review surface.** GraphQL
+**Reply through the REST `in_reply_to` endpoint, never through the review surface.** GraphQL
 `addPullRequestReviewThreadReply` / `addPullRequestReviewComment` and REST `POST /pulls/<n>/reviews`
 with a `comments` array attach the reply to a **pending review draft**: it renders as `Pending`, is
 invisible to everyone but you, and publishes only when that review is submitted

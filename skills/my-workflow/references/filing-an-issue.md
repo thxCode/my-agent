@@ -90,7 +90,7 @@ A stage that finds something mid-flight has one more decision: file now, or fini
 - **Finish first** if it is adjacent. A finding written up two hours later with a clean reproduction beats one
   filed immediately with "saw this once".
 
-Either way: ⛔ **do not fold an unrelated finding into the current change as a drive-by fix.** It arrives
+Either way: **NEVER fold an unrelated finding into the current change as a drive-by fix.** It arrives
 without its own review, and the issue that would have recorded why never gets written.
 
 ## The check that catches most of it
