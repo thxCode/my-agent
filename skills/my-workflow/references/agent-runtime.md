@@ -19,6 +19,22 @@ kimi, qwen — and the guide's low-level topology path covers argv the launcher 
 unattended `--yolo`. An unattended worker must run in its provider's unattended approval mode, or it stalls on
 the first approval prompt.
 
+## Detect the Orca host
+
+`my-crew`, `my-handoff`, and the team lane all require an Orca-hosted session. Read that from the environment,
+never from an `orca` executable being present — outside Orca's terminals that name may resolve to something
+else entirely, so a binary on `PATH` proves nothing:
+
+- `TERM_PROGRAM=Orca`, together with `ORCA_WORKTREE_ID` and `ORCA_TERMINAL_HANDLE`, means this session is
+  Orca-hosted. `ORCA_TERMINAL_HANDLE` is this window's own handle.
+- `ORCA_APP_VERSION` is the running Orca version; use it to confirm a retrieved guide matches the runtime.
+- `ORCA_AGENT_TEAMS_*` means Orca is brokering the host's native team facility — see `team-lane.md`.
+- Any of the first three missing → not Orca-hosted. Report which signal is absent and stop, rather than
+  substituting a host-native subagent and calling it Orca.
+
+Resolve the executable separately, as the `orca-cli` and `orchestration` skills require. These variable names
+belong to Orca, so treat them as a host signal only: command syntax still comes from the version-matched guide.
+
 ## Native subagent adapters
 
 - **Claude Code:** use its available subagent or Agent Teams tools. Do not require Agent Teams merely to run a

@@ -5,15 +5,19 @@ Parallelism buys wall-clock time, not correctness. Use this lane only when the t
 
 ## 1. Choose the runtime
 
-Read `agent-runtime.md`, then select in this order:
+Read `agent-runtime.md` and apply its **Detect the Orca host** signals, then select in this order:
 
-1. **Orca orchestration (preferred):** use when Orca is running and its orchestration feature is available.
-   Load the version-matched `orchestration` skill, create or bind one Run, create all independent Tasks, and
-   start every independent worker before waiting. Orca owns Task/Dispatch state and `worker_done` authority.
-2. **Host-native team:** use the current host's native subagent capability when Orca is unavailable or the user
-   explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi, and Qwen use
-   different spawn tools; preserve the contract rather than translating tool names.
-3. **Sequential fallback:** if neither path can provide write-capable workers, offer ordinary `my-build`
+1. **Orca orchestration (preferred):** use when the session is Orca-hosted and its orchestration feature is
+   available. Load the version-matched `orchestration` skill, create or bind one Run, create all independent
+   Tasks, and start every independent worker before waiting. Orca owns Task/Dispatch state and `worker_done`
+   authority.
+2. **Orca-brokered native team:** `ORCA_AGENT_TEAMS_*` set means Orca is brokering the host's own team
+   facility. Use it when orchestration is unavailable but the run still needs parallel write-capable workers.
+   Orca placed those workers, so it still owns window state; the team facility only carries messages.
+3. **Host-native team:** use the current host's native subagent capability when the session is not Orca-hosted,
+   or the user explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi, and
+   Qwen use different spawn tools; preserve the contract rather than translating tool names.
+4. **Sequential fallback:** if no path can provide write-capable workers, offer ordinary `my-build`
    sequencing. Never pretend a sequential run is a team run.
 
 Before spending agent quota, show the user the frontier, worker role, placement, and ownership boundaries. If

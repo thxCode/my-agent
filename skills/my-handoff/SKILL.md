@@ -18,8 +18,9 @@ a supervised crew.
 
 1. Read `~/.agents/skills/my-workflow/references/agent-runtime.md` and
    `~/.agents/skills/my-workflow/references/multi-window.md`.
-2. Resolve the Orca executable and confirm this is an Orca-hosted session. Without an Orca terminal there is no
-   target window to create; report that and stop rather than silently substituting a subagent.
+2. Resolve the Orca executable and confirm this is an Orca-hosted session using the signals in
+   `agent-runtime.md`'s **Detect the Orca host**. Without an Orca terminal there is no target window to
+   create; report that and stop rather than silently substituting a subagent.
 3. Run `orca skills get orca-cli` with the resolved executable and follow its current **Full Handoffs** guide.
    Do not copy flags from this skill or memory.
 4. Resolve the target agent from the user's request — claude, codex, kimi, or qwen; ask only if it is missing.
@@ -66,10 +67,15 @@ decision; no cross-window message can widen the user's authorization.
 
 - Show the brief and intended target/placement before spending another agent's quota unless the user already
   authorized the handoff.
-- Use the version-matched Orca guide to create the target and send one short instruction pointing to the brief.
+- Use the version-matched Orca guide to create the target — the window does not exist yet, so Orca creates it
+  whatever provider it runs. Then send one short instruction pointing to the brief, over the carrier the
+  channel table in `multi-window.md` gives for that peer: a Claude target is reachable by Claude's attributed
+  cross-session message, which is preferable because a raw terminal write reaches the target unattributed and
+  reads there like a user turn.
 - Read the target terminal back and confirm that the agent accepted the instruction; a successful PTY write alone
   is not proof.
-- Report the target handle/worktree and brief path, then stop. Do not create a Run, poll completion, or send
-  orchestration mailbox messages to a worker that has no Dispatch.
+- Report the target handle/worktree and brief path **to the user**, then stop. This skill has no coordinator to
+  answer to and produces no handback: a handoff ends the reporting line, it does not loop it back. Do not
+  create a Run, poll completion, or send orchestration mailbox messages to a worker that has no Dispatch.
 - Later corrections use the same durable file-plus-pointer channel. If supervision becomes necessary, switch to
   a new `my-crew` workflow rather than retrofitting lifecycle state onto the handoff.
