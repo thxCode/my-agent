@@ -40,8 +40,8 @@ One line per finding: `<file>:L<n>: <tag> <what>. <replacement>.`
 - `yagni:` — an abstraction with one implementation, config nobody sets, a layer with one caller.
 - `shrink:` — same logic, fewer lines. Show the shorter form.
 
-Four of the six do not typecheck as a finding without a concrete replacement, and that is the point: naming
-the replacement is what separates a review from a misgiving. Compare
+Four of the six do not typecheck as a finding without a concrete replacement: naming the replacement is what
+separates a review from a misgiving. Compare
 
     L12-38: this EmailValidator class might be more complex than necessary, have you considered
             whether all these rules are needed at this stage?
@@ -110,8 +110,9 @@ Two signals that the pass has gone wrong in opposite directions:
 
 ## What the pass costs
 
-Skip the fan-out entirely when all of these hold: the diff touches two files or fewer, is under 50 lines, and
-goes nowhere near authentication, payments, data access, or configuration. Otherwise fan out.
+A diff that touches two files or fewer, stays under 50 lines, and goes nowhere near authentication, payments,
+data access, or configuration earns the floor and nothing beyond it — Conventions and Diff-only, no further
+reviewers. Anything else, fan out.
 
 Size is itself a finding. Around 300 changed lines is reviewable as one logical change; past roughly 1000,
 the right report is "split this", because a review nobody can hold in their head approves by exhaustion.
@@ -129,5 +130,11 @@ heuristic — leave a comment naming both the ceiling and what would justify rev
 
 Harvest them with `command grep -rnE '(#|//|--) ?shortcut:'`, anchored on the comment prefix so prose about
 the convention stays out of the ledger. A marker naming a ceiling but no trigger is the one that rots; report
-those separately. This is the counterweight to `yagni:` and `delete:`, not an exception to them — a shortcut
-with a trigger is a decision, and one without is a deferral nobody owns.
+those separately.
+
+**The Standards axis runs that harvest over the change under review and reports what it added**, so a ceiling
+accepted this round is visible at the one gate still able to question it. A marker nobody ever collects is
+the deferral it was meant to prevent.
+
+This is the counterweight to `yagni:` and `delete:`, not an exception to them — a shortcut with a trigger is
+a decision, and one without is a deferral nobody owns.

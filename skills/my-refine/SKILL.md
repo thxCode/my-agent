@@ -12,16 +12,20 @@ Two jobs, in order: find **conflicts** (two places that disagree, or a rule sitt
 or can never be evaluated), then **prune** (cut a word, a phrase, a sentence — behaviour unchanged, tokens
 down). Conflicts may change behaviour; prunes may not.
 
-Prompt assets have no test suite, so Phase 6's mechanical checks are the completion criterion.
+Phase 6's mechanical checks are this pass's completion criterion: they prove the asset is still well formed,
+never that it works better. An asset with a fixture eval under `~/.agents/skills/my-workflow/evals/` has an
+instrument for that second question, and running it is a separate job.
 
 **Language.** Write asset edits in **English**; talk to the user in their configured language.
 
 ## Phase 1 — Scope and baseline
 
 1. **Resolve the target.**
-   - **Empty** → the whole family: `~/.agents/skills/my-*/SKILL.md`, `~/.agents/skills/my-workflow/references/**/*.md`,
-     and `~/.claude/agents/*.md`. Read them **all in one pass** — a cross-file probe needs the whole set in view at
-     once.
+   - **Empty** → the whole family: every `SKILL.md` this repository **tracks** under `~/.agents/skills/`,
+     plus `~/.agents/skills/my-workflow/references/**/*.md`, `~/.agents/skills/my-workflow/evals/**/*.md`,
+     and `~/.agents/agents/*.md`. Tracked is the test because a third-party installer's skill is untracked
+     and not ours to edit; `git ls-files skills` draws the line. Read them **all in one pass** — a cross-file
+     probe needs the whole set in view at once.
    - **A path** (a `skills/<name>/SKILL.md`, an agent, any file) → read it plus anything it points at. A single
      file has no cross-file surface: run Phase 3 in full, and from Phase 2 run only **Unenforced promise** and
      the pointer half of **Unreachable rule**. Say which probes are out of scope for this target.
@@ -97,7 +101,7 @@ for f in sys.argv[1:]:
 # 4 — each fixed conflict: the old wording greps empty, the new wording is present
 # 5 — untouched-by-design blocks (a tested bash snippet, a template) are byte-identical in `git diff`
 # 6 — wc -c, before and after
-# 7 — the shared validator passes for changed my-* skills; quick_validate.py passes for changed standard-only skills
+# 7 — the shared validator passes; its orphan, ignore, provenance and emoji checks are repo-wide, so run it for any changed skill, .gitignore or CREDITS.md. quick_validate.py for changed standard-only skills
 # 8 — no legacy prompt placeholders, stale command paths, provider model names, generic reasoning rituals, or host-specific team tools remain in shared workflow files
 ```
 

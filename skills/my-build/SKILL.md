@@ -188,7 +188,7 @@ Depth matches the task's risk:
    commits made, anything skipped / flagged / left for the user.
 5. **End-of-build review** (all modes):
    1. **Pin the scope, fail fast.** Resolve the base and confirm `git diff <base>...HEAD` is non-empty (working
-      tree if still uncommitted). A bad ref or empty diff fails here, not inside three reviewers. Team mode →
+      tree if still uncommitted). A bad ref or empty diff fails here, not inside the reviewers. Team mode →
       shut teammates down first, so nothing is still writing while the reviewers read.
    2. **User review** — present an overall diff overview; ask whether anything needs adjustment (yes → Phase 3,
       then back here).
