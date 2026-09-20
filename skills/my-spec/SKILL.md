@@ -1,7 +1,6 @@
 ---
 name: my-spec
 description: Write a durable spec for a feature, tracked bug, or GitHub issue before implementation.
-disable-model-invocation: true
 ---
 
 # my-spec
