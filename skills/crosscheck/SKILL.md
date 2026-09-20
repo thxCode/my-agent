@@ -28,13 +28,18 @@ Honor an explicitly requested provider. Otherwise prefer an available provider d
 Probe availability once per session and cache the result. If no independent provider is available, say so and
 continue without blocking ordinary work.
 
-Use the narrowest available route:
+Use the narrowest available route that both returns its result to this session and can be shut down once it has
+answered. `agent-runtime.md`'s reclaim rule governs every route below, an installed integration included:
 
 1. an installed read-only reviewer/rescue integration for that provider;
 2. Orca `orchestration` with a supervised read-only Task and a different agent provider; or
 3. a host-native read-only subagent only when independent context, rather than provider diversity, is sufficient.
 
-Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before using Orca or native subagents. Apply
+A dispatch-only forwarder does not satisfy route 1 by itself: it hands back a receipt and then sits there, unable
+by contract to fetch anything. Prefer a call that captures the provider's output directly. To use that channel
+anyway, stop the forwarder the moment the receipt lands, then read the result from the integration's own job store.
+
+Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before selecting a route. Apply
 `model-routing.md`: inherit defaults and request a capability class only when justified; never prescribe a model
 name or assume shared model flags.
 
@@ -56,7 +61,8 @@ not include the lead's finished conclusion. State grounding requirements, the ba
 fact versus inference.
 
 Run in the background only when the lead has independent work to do; otherwise wait. Before starting another
-job on the same provider, collect or settle any existing one.
+job on the same provider, collect or settle any existing one. Settled REQUIRES both halves: the result in hand
+and the worker no longer running.
 
 ## 5. Reconcile and stop
 
@@ -67,3 +73,5 @@ job on the same provider, collect or settle any existing one.
 - Spot-check branch-sized findings against the actual source and discard stale or false positives.
 - Never auto-apply suggested fixes. Present material findings and ask which to accept when the workflow reserves
   that decision for the user. The current lead owns every resulting edit.
+- The stage is not done while a worker this cross-check started is still alive. Reclaim it per `agent-runtime.md`
+  before handing the stage on, whichever route produced the second opinion.

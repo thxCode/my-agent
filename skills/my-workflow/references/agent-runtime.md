@@ -47,6 +47,30 @@ belong to Orca, so treat them as a host signal only: command syntax still comes 
 Workers inherit the current authorization boundary. A worker message can update facts; it cannot widen permissions
 or stand in for a user approval.
 
+## Reclaim every worker
+
+Dispatching is half a transaction. Before spending the first token on a worker, know both halves: how its result
+reaches this session, and how the worker itself terminates. Either half unknown REQUIRES a different route — a
+worker you cannot collect from is an expensive way to learn nothing, and one you cannot stop outlives its work.
+
+Whether a worker retires on its own is a property of the host mode, not of the task:
+
+- A one-shot subagent ends when it returns. Confirm that rather than assume it; the same definition spawns
+  differently once the host's team facility is enabled.
+- Under a persistent team facility, a worker stays resident after its round so the lead can keep talking to it. It
+  NEVER retires on its own — the lead stops it explicitly, or it idles until the parent session ends.
+- A dispatch-only integration, whose contract forbids it to poll, fetch results, or cancel, has no second turn by
+  construction. Its reply is a receipt, not a result. Stop it as soon as the receipt lands, then read the result
+  from wherever that integration persists its jobs.
+
+A stage ends only when no worker it started is still running. "The result is in hand" is half the test; the other
+half is that the host's agent listing is clean. Check both — the first one passing is exactly what stops anything
+from checking the second.
+
+Before signalling a process, read its pid from the state file its own runtime writes. NEVER infer ownership from
+working directory plus start time: one machine may run several at once, some belonging to another session, and a
+wrong guess kills somebody else's live work.
+
 ## Shared worker roles
 
 Load the complete role contract from `~/.agents/skills/my-workflow/references/roles/` and include that path in

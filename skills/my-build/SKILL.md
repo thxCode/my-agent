@@ -204,7 +204,9 @@ Depth matches the task's risk:
       build diff. **Once, never per task.** It runs while the two axes do.
       Gate skip / neither tool available → note it and skip.
    5. **Barrier & address findings.** Collect all three, using the selected route's status/result mechanism for
-      the cross-check. Report **Standards and Spec side by side under their own headings — never merged, never
+      the cross-check; the barrier clears only once every worker this phase started has reported **and** been
+      reclaimed (`agent-runtime.md`) — reviewers, spec axis, and cross-check alike. Report **Standards and Spec
+      side by side under their own headings — never merged, never
       re-ranked across axes.** A change can pass one axis and fail the other; merging lets the clean axis mask
       the failing one. Fold the cross-check's findings into whichever axis they belong to. Spot-check large
       findings against source (per `crosscheck`), then **STOP and ask the user which to fix** (never

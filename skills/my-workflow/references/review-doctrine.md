@@ -75,6 +75,10 @@ themselves on a file with a long past, and not on a new one.
 review and fan out again; upstream has seen one pass reach fifty-plus agents. Keep each reviewer's report
 under 400 words.
 
+**Every reviewer you spawn, you reclaim.** The pass is over when no reviewer is still running, not when the
+last report lands — those are different moments under a host that keeps workers resident. Reclaim per
+`agent-runtime.md`, and count the spec axis in: it is spawned the same way and is missed the same way.
+
 ## Find with judgment, verify with a cheap pass
 
 Finding and confirming are different jobs, and the second one has no design judgment in it — which makes it
