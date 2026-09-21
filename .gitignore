@@ -39,7 +39,8 @@
 !/CREDITS.md
 !/LICENSE
 !/README.md
-!statusline-command.sh
+!statusline-claude.sh
+!statusline-kimi.sh
 
 # macOS
 .DS_Store

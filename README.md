@@ -22,13 +22,14 @@ contracts.
 ~/.claude/CLAUDE.md             -> ~/.agents/AGENTS.md
 ~/.claude/skills                -> ~/.agents/skills
 ~/.claude/agents                -> ~/.agents/agents
-~/.claude/statusline-command.sh -> ~/.agents/statusline-command.sh
+~/.claude/statusline.sh         -> ~/.agents/statusline-claude.sh
 ~/.codex/AGENTS.md              -> ~/.agents/AGENTS.md
+~/.kimi-code/statusline.sh      -> ~/.agents/statusline-kimi.sh
 ~/.qwen/skills                  -> ~/.agents/skills
 ```
 
-Kimi reads `~/.agents/AGENTS.md` and `~/.agents/skills` directly. Codex reads the shared skills directly but
-needs its global `AGENTS.md` link. Claude needs the four links shown above. Qwen discovers skills only under
+Kimi reads `~/.agents/AGENTS.md` and `~/.agents/skills` directly; its only link is the status line
+script above. Codex reads the shared skills directly but needs its global `AGENTS.md` link. Claude needs the four links shown above. Qwen discovers skills only under
 `.qwen/skills`, so it needs that root linked. Do not create per-skill links under `~/.codex/skills` or
 `~/.kimi-code/skills`.
 
@@ -58,20 +59,22 @@ scope.
    git clone https://github.com/thxCode/my-agent.git ~/.agents
    ```
 
-2. **Link each host to the shared root.** Only Claude and Qwen need links; Codex needs one for its
-   instructions file:
+2. **Link each host to the shared root.** Claude and Qwen need links, Codex needs one for its
+   instructions file, and Kimi needs one for its status line script:
 
    ```bash
    ln -s ../.agents/AGENTS.md             ~/.claude/CLAUDE.md
    ln -s ../.agents/skills                ~/.claude/skills
    ln -s ../.agents/agents                ~/.claude/agents
-   ln -s ../.agents/statusline-command.sh ~/.claude/statusline-command.sh
+   ln -s ../.agents/statusline-claude.sh  ~/.claude/statusline.sh
    ln -s ../.agents/AGENTS.md             ~/.codex/AGENTS.md
+   ln -s ../.agents/statusline-kimi.sh    ~/.kimi-code/statusline.sh
    ln -s ../.agents/skills                ~/.qwen/skills
    ```
 
    The status line link is required whenever Claude's `settings.json` points `statusLine` at
-   `~/.claude/statusline-command.sh`; without it the status line silently fails.
+   `~/.claude/statusline.sh`; without it the status line silently fails. Kimi's link is
+   likewise required by the `[status_line]` command in `tui.toml`; see Kimi Code helpers.
 
    `~/.qwen/skills` may already exist as a real directory holding links from other tools. Move what you still
    want out of it first — `ln -s` will not replace a populated directory, and forcing it would drop those
@@ -314,6 +317,21 @@ orca skills installed --json
 
 The installed `orca-cli` and `orchestration` skills are discovery stubs. Their full guides come from the
 installed binary at execution time, which keeps command syntax matched to the local Orca version.
+
+### Kimi Code helpers
+
+**`statusline-kimi.sh`** is a custom footer status line: model, a context-usage bar, the
+account's 5-hour and 7-day quota percentages, the working directory, and the git branch. Kimi's
+status-line snapshot carries no quota fields, so the script polls `GET <base_url>/usages` with the
+OAuth token from `~/.kimi-code/credentials/kimi-code.json` in a detached background job at most once
+a minute and renders only from `~/.kimi-code/cache/statusline-usage.json`, keeping the foreground
+path well under the 300 ms the TUI allows. It requires `jq` and `curl`, and `~/.kimi-code/tui.toml`
+must point at the link:
+
+```toml
+[status_line]
+command = "~/.kimi-code/statusline.sh"
+```
 
 ## Validation
 
