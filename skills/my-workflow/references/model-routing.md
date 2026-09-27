@@ -1,7 +1,7 @@
 # Model routing — capability classes, not vendor names
 
 Shared workflow instructions never prescribe a concrete model name or a vendor-specific model-switch command.
-Model catalogs, aliases, and supported reasoning controls differ across Claude, Codex, Kimi, and Qwen and change
+Model catalogs, aliases, and supported reasoning controls differ across Claude, Codex, Kimi, Qwen, and OMP and change
 over time.
 
 ## Defaults
@@ -38,5 +38,8 @@ criteria. Do not treat maximum effort as a universal quality setting.
 ## Workers
 
 Native subagents inherit the parent model by default. Use a cheaper/faster worker only for a narrow role whose
-contract removes design judgment. Orca worker creation chooses the agent provider and placement; any model choice
-is resolved by that provider's current configuration, not by the shared Task spec.
+contract removes design judgment. Orca worker creation chooses the agent provider and placement; for a
+`crosscheck` review using the lead's tool, preserve its current model through that tool's documented launch
+option when its configured default differs. A user-selected reviewer model takes precedence; another selected
+tool uses its own configured default unless the user also selected a model. For other Orca workers, model
+choice is resolved by the provider's current configuration, not by the shared Task spec.

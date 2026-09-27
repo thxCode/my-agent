@@ -15,8 +15,8 @@ Read `agent-runtime.md` and apply its **Detect the Orca host** signals, then sel
    facility. Use it when orchestration is unavailable but the run still needs parallel write-capable workers.
    Orca placed those workers, so it still owns window state; the team facility only carries messages.
 3. **Host-native team:** use the current host's native subagent capability when the session is not Orca-hosted,
-   or the user explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi, and
-   Qwen use different spawn tools; preserve the contract rather than translating tool names.
+   or the user explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi,
+   Qwen, and OMP use different spawn tools; preserve the contract rather than translating tool names.
 4. **Sequential fallback:** if no path can provide write-capable workers, offer ordinary `my-build`
    sequencing. Never pretend a sequential run is a team run.
 

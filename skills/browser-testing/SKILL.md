@@ -17,14 +17,15 @@ tax. Building the UI itself is `frontend-ui-engineering`.
 
 ## Resolve the bridge first, because hosts do not share one
 
-No host here has a built-in browser. Each reaches one through an integration, they are not equivalent, and
-one host has none at all. Find yours before planning any step:
+OMP has a built-in browser tool. Other hosts may reach a browser through an integration; these are not
+equivalent. Find the available bridge before planning any step:
 
 | Bridge | Shape | Reaches |
 | --- | --- | --- |
 | A Chrome DevTools MCP server | A browser instance the integration launches and owns | DOM snapshot, console, network, traces, screenshots |
 | A browser-extension bridge | The **user's own running browser**, with their logged-in sessions | Navigate, click, type, read, screenshot, on sites they are already authenticated to |
 | A page-automation library driven from the shell | Whatever you script | Whatever you script, at the cost of writing it |
+| OMP's built-in browser tool | The browser instance exposed by OMP | Navigate, inspect, and interact within that instance |
 
 Probe for what is actually registered in this session rather than assuming: list the tools available to you
 and look for browser verbs, or check the host's own skill catalog for a bridge skill. **No bridge → say so

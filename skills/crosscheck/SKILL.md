@@ -16,32 +16,26 @@ Default to skip. Run one cross-check only when at least one condition holds:
 - the design or root cause is novel, intermittent, or lacks an established repository pattern;
 - the domain is high stakes: security, authorization, concurrency, migration/data loss, billing, or public API;
 - the target artifact marks the work as risky; or
-- the lead has low confidence or conflicting evidence.
+- the lead has low confidence or conflicting evidence; or
+- the user explicitly requested an independent review.
 
-Skip local, well-patterned, reversible work. Do not repeat a cross-check over unchanged evidence. Use at most one
-turn per workflow stage; a deliberately requested diff review may use one bounded reviewer per isolated heavy
-task, never concurrent calls to the same provider.
+Skip local, well-patterned, reversible work unless the user requested review. Do not repeat a cross-check over
+unchanged evidence. Use at most one turn per workflow stage; a deliberately requested diff review may use one
+bounded reviewer per isolated heavy task. `auto-research` may run one consolidated pass per new findings batch
+and one final report pass under its own cost gate. Never make concurrent calls to the same provider.
 
-## 2. Choose an independent route
+## 2. Dispatch through `my-crew`
 
-Honor an explicitly requested provider. Otherwise prefer an available provider different from the current lead.
-Probe availability once per session and cache the result. If no independent provider is available, say so and
-continue without blocking ordinary work.
+Apply `my-crew`'s review lane. Default to the current agent tool and its current model in an independent review
+context. Honor a user-specified tool, model, or named subagent. Do not substitute another target when the
+requested one is unavailable; report that and continue without blocking ordinary work.
 
-Use the narrowest available route that both returns its result to this session and can be shut down once it has
-answered. `agent-runtime.md`'s reclaim rule governs every route below, an installed integration included:
+When Orca orchestration is reachable, `my-crew` uses a supervised read-only Task in a separate agent window.
+Otherwise it uses the current host's native read-only subagent. The native route has an independent context but
+may not have a separate terminal window. Do not use an installed bridge plugin as a review route.
 
-1. an installed read-only reviewer/rescue integration for that provider;
-2. Orca `orchestration` with a supervised read-only Task and a different agent provider; or
-3. a host-native read-only subagent only when independent context, rather than provider diversity, is sufficient.
-
-A dispatch-only forwarder does not satisfy route 1 by itself: it hands back a receipt and then sits there, unable
-by contract to fetch anything. Prefer a call that captures the provider's output directly. To use that channel
-anyway, stop the forwarder the moment the receipt lands, then read the result from the integration's own job store.
-
-Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before selecting a route. Apply
-`model-routing.md`: inherit defaults and request a capability class only when justified; never prescribe a model
-name or assume shared model flags.
+Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before dispatch. Apply `model-routing.md`:
+inherit defaults unless the user selected a model or a capability change is justified.
 
 ## 3. Select the review shape
 
@@ -74,4 +68,4 @@ and the worker no longer running.
 - Never auto-apply suggested fixes. Present material findings and ask which to accept when the workflow reserves
   that decision for the user. The current lead owns every resulting edit.
 - The stage is not done while a worker this cross-check started is still alive. Reclaim it per `agent-runtime.md`
-  before handing the stage on, whichever route produced the second opinion.
+  before handing the stage on, whichever `my-crew` route produced the second opinion.

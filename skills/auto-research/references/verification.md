@@ -35,28 +35,27 @@ workers never write the file.
 The verifier subagent is **not** the worker that produced the finding, and is told to **try to disprove** it. A
 finding flips to `verified` only when the refutation attempt fails on the evidence.
 
-## Cross-model adversarial verification (Codex)
+## Adversarial review through `my-crew`
 
-A same-model verifier shares the producer's blind spots, so its agreement can itself be the
-"collectively hallucinated consensus" §7.6 warns against. A verifier from a **different model family** (Codex /
-GPT-5.x) is a genuinely independent second skeptic — it catches errors the same-model pass structurally cannot.
+A reviewer receives the raw claims and source evidence, without the producer's conclusion. An independent
+context can expose mistaken claims even when the reviewer inherits the current model.
 
-- **When.** A codex-related skill is available, the cost verdict is `ok`/`warn`, and the work is
+- **When.** A review route is available, the cost verdict is `ok`/`warn`, and the work is
   **load-bearing / code-grounded** (`file:line` claims, drives a spec/implementation, or otherwise high-stakes).
   Use it for those findings during a verify round, and as the **pre-finalize report pass** (SKILL.md step 6.5).
   Lightweight reports don't auto-trigger.
-- **Contract.** Delegate via the `Agent` tool, `subagent_type: "codex:codex-rescue"`. **Read-only, adversarial,
-  per-claim:** "try to refute each claim; return CONFIRMED / REFUTED / PARTIALLY-CORRECT with the correct
-  `file:line`, then list risks the report missed." **Never let Codex edit files.**
-- **Orchestrator adjudicates — Codex is not the judge.** A Codex verdict enters as a fresh `unverified` signal; it
+- **Contract.** Apply `crosscheck` and dispatch via `my-crew`. **Read-only, adversarial, per-claim:** "try to
+  refute each claim; return CONFIRMED / REFUTED / PARTIALLY-CORRECT with the correct `file:line`, then list risks
+  the report missed." **Never let the reviewer edit files.**
+- **Orchestrator adjudicates.** A reviewer verdict enters as a fresh `unverified` signal; it
   does **not** flip a finding to `verified` on its own. Re-check each verdict against the real source. On a
-  conflict, the orchestrator's own source check wins — Codex is wrong sometimes, including *confirmed-but-imprecise*
+  conflict, the orchestrator's own source check wins — a reviewer can be wrong, including *confirmed-but-imprecise*
   (e.g. it "corrects" 16→8 when the true behavior is "neither, the function doesn't cap above 16"). Fold in only
   what you can independently confirm.
-- **Schema.** A finding touched by a cross-model pass may carry an optional `cross_verifier_note` — one line for
-  Codex's verdict, one for the orchestrator's adjudication.
-- **Cost.** A single Codex pass is non-trivial (order tens of thousands of tokens / minutes), so run **one
-  consolidated pass over the material claims**, not a per-finding fan-out; skip entirely on `soft`/`hard`.
+- **Schema.** A finding touched by an adversarial pass may carry an optional `cross_verifier_note` — one line for
+  the reviewer's verdict, one for the orchestrator's adjudication.
+- **Cost.** A single adversarial pass can be costly, so run **one consolidated pass over the material claims**,
+  not a per-finding fan-out; skip entirely on `soft`/`hard`.
 
 ## Criteria — a finding is `verified` only if ALL hold
 

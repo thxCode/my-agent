@@ -1,8 +1,8 @@
 # My Agent Workflow
 
-Personal, reusable engineering workflows for Claude Code, Codex, Kimi Code, and Qwen Code. Clone this
-repository directly to `~/.agents`; it is the canonical source for shared instructions, skills, and role
-contracts.
+Personal, reusable engineering workflows for Claude Code, Codex, Kimi Code, Qwen Code, and OMP (oh-my-pi).
+Clone this repository directly to `~/.agents`; it is the canonical source for shared instructions, skills,
+and role contracts.
 
 ## Shared layout
 
@@ -10,7 +10,7 @@ contracts.
 ~/.agents/                    # this Git repository
 ├── AGENTS.md                 # shared global instructions
 ├── CREDITS.md                # upstreams the distilled skills came from
-├── skills/                   # Codex and Kimi discover this directly
+├── skills/                   # Codex, Kimi, and OMP discover this directly
 │   ├── my-workflow/          # natural-language router and shared references
 │   ├── my-spec/              # one workflow stage per skill
 │   ├── my-plan/
@@ -24,14 +24,15 @@ contracts.
 ~/.claude/agents                -> ~/.agents/agents
 ~/.claude/statusline.sh         -> ~/.agents/statusline-claude.sh
 ~/.codex/AGENTS.md              -> ~/.agents/AGENTS.md
+~/.omp/agent/AGENTS.md          -> ~/.agents/AGENTS.md
 ~/.kimi-code/statusline.sh      -> ~/.agents/statusline-kimi.sh
 ~/.qwen/skills                  -> ~/.agents/skills
 ```
 
 Kimi reads `~/.agents/AGENTS.md` and `~/.agents/skills` directly; its only link is the status line
-script above. Codex reads the shared skills directly but needs its global `AGENTS.md` link. Claude needs the four links shown above. Qwen discovers skills only under
-`.qwen/skills`, so it needs that root linked. Do not create per-skill links under `~/.codex/skills` or
-`~/.kimi-code/skills`.
+script above. Codex and OMP read the shared skills directly but need their global `AGENTS.md` links. Claude
+needs the four links shown above. Qwen discovers skills only under `.qwen/skills`, so it needs that root linked.
+Do not create per-skill links under `~/.codex/skills` or `~/.kimi-code/skills`.
 
 `AGENTS.md` is the only copy of the shared instructions, and every host above reads that one file.
 
@@ -59,8 +60,12 @@ scope.
    git clone https://github.com/thxCode/my-agent.git ~/.agents
    ```
 
-2. **Link each host to the shared root.** Claude and Qwen need links, Codex needs one for its
-   instructions file, and Kimi needs one for its status line script:
+2. **Link each host to the shared root.** Claude and Qwen need links, Codex and OMP need one each for their
+   instructions files, and Kimi needs one for its status line script:
+
+   Install [OMP](https://github.com/can1357/oh-my-pi) before creating its link, for example with
+   `brew install can1357/tap/omp`; its user configuration directory must exist. OMP discovers
+   `~/.agents/skills` directly through its agents skill provider.
 
    ```bash
    ln -s ../.agents/AGENTS.md             ~/.claude/CLAUDE.md
@@ -68,6 +73,7 @@ scope.
    ln -s ../.agents/agents                ~/.claude/agents
    ln -s ../.agents/statusline-claude.sh  ~/.claude/statusline.sh
    ln -s ../.agents/AGENTS.md             ~/.codex/AGENTS.md
+   ln -s ../../.agents/AGENTS.md          ~/.omp/agent/AGENTS.md
    ln -s ../.agents/statusline-kimi.sh    ~/.kimi-code/statusline.sh
    ln -s ../.agents/skills                ~/.qwen/skills
    ```
@@ -105,6 +111,7 @@ and MCP schemas differ:
 | [Codex](https://github.com/openai/codex) | `$my-spec …` | `~/.codex/config.toml` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
 | [Kimi Code](https://code.kimi.com) | `/skill:my-spec …` | `~/.kimi-code/mcp.json` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
 | [Qwen Code](https://github.com/QwenLM/qwen-code) | `/my-spec …` | `~/.qwen/settings.json`, under `mcpServers` | no per-tool `defer_loading`; HTTP servers use `httpUrl`, not `url` |
+| [OMP](https://github.com/can1357/oh-my-pi) | `/skill:my-spec …` | `~/.omp/agent/mcp.json` | built-in tools and skills; use OMP's own configuration |
 
 Every host selects non-restricted skills by natural-language matching as well. Qwen's global instructions file
 is not linked above: its documented context filename is `QWEN.md`, but the path it reads at user scope is not
@@ -133,7 +140,7 @@ enforces this in Claude and Kimi; each skill's `agents/openai.yaml` expresses th
 - **`my-ship`** — run final validation, reconcile docs, tidy history, and prepare the PR.
 - **`my-advisory`** — add embargo, severity, release, credit, CVE, and publication discipline around the bug lane.
 - **`my-handoff`** — transfer ownership to another Orca window/worktree and stop.
-- **`my-crew`** — supervise an Orca Run/Task/Dispatch lifecycle until all workers settle.
+- **`my-crew`** — supervise Orca workers or coordinate a read-only review subagent.
 - **`my-refine`** — audit and prune this prompt/skill family itself.
 
 Alongside the lifecycle, `skills/` also carries standalone skills that no stage owns — `auto-research`,
@@ -151,6 +158,8 @@ calibrates effort against evidence.
 Use the smallest coordination surface that preserves the required state:
 
 - Same-session, bounded exploration/review/test work → the current host's native subagents.
+- Adversarial review → `crosscheck` gates it; `my-crew` dispatches through Orca when hosted, otherwise through
+  the current host's native read-only subagent.
 - Supervised workers, a Task DAG, cross-agent coordination, ask/reply, or completion tracking → Orca
   `orchestration`.
 - Full ownership transfer to another window/worktree → Orca `orca-cli` handoff.
@@ -182,17 +191,13 @@ optional integration must degrade to the current host's built-in tools.
 | [anysearch MCP](https://www.anysearch.com) | web search and page extraction for agents | each MCP host |
 | [GitNexus](https://github.com/abhigyanpatwari/GitNexus) | code-graph exploration and impact analysis | CLI plus each MCP host |
 | [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | a browser bridge for `browser-testing`, in an instance it owns | each MCP host that has no bridge of its own |
-| [codex-plugin-cc](https://github.com/openai/codex-plugin-cc) | call Codex from inside Claude | Claude Code only |
-| [kimi-code-plugin-cc](https://github.com/thxCode/kimi-code-plugin-cc) | call Kimi from inside Claude | Claude Code only |
 | [crawl4ai](https://github.com/unclecode/crawl4ai) | clean Markdown extraction and rendered screenshots | local machine |
 | [Orca](https://github.com/stablyai/orca) | worktrees, handoffs, or supervised multi-agent runs | local machine plus shared skills |
 
-Browser bridges are the one row where the hosts genuinely diverge, so `browser-testing` resolves the bridge
-at run time instead of naming one. Claude and Codex reach a browser through the Chrome DevTools MCP server
-above, which drives an instance it launches and owns. Kimi ships its own extension bridge instead, and that
-one drives the user's real browser under their live logins — the same verbs, a completely different blast
-radius. A host with no bridge cannot verify a UI at all, and the skill is written to say so rather than
-substitute a static fetch.
+Browser bridges differ across hosts, so `browser-testing` resolves the bridge at run time. Claude and Codex
+can use the Chrome DevTools MCP server above, which drives an instance it launches and owns. Kimi ships an
+extension bridge that drives the user's real browser under their live logins. OMP has a built-in browser tool.
+A host with no browser tool or bridge cannot verify a UI through a live browser.
 
 ### MCP servers
 
@@ -267,35 +272,6 @@ The cost of distilling is drift: a fork stops tracking the day it is written. `m
 counterweight — it compares each derived file against its upstream at the recorded commit, reports what
 moved, and changes nothing. Re-distilling is a deliberate, separate run.
 
-An earlier arrangement installed the upstream Claude plugin instead. Over three months it injected roughly
-8.6 KB of skill descriptions into every Claude and Codex session and was invoked zero times, partly because
-the routes into it named a plugin namespace that only resolved on one of the four hosts.
-
-### Claude Code plugins
-
-These plugins extend Claude Code only. Codex, Kimi, and Qwen do not need a bridge plugin to use the shared
-skills directly.
-
-Install the Codex bridge when Claude should ask Codex for an optional cross-check:
-
-```bash
-claude plugin marketplace add openai/codex-plugin-cc
-claude plugin install codex@openai-codex
-```
-
-Then run `/codex:setup` inside Claude to verify the Codex CLI and login.
-
-Install the Kimi bridge when Claude should ask Kimi for an optional cross-check:
-
-```bash
-claude plugin marketplace add thxcode/kimi-code-plugin-cc
-claude plugin install kimi@moonshotai-kimi
-```
-
-The Kimi bridge also needs the Kimi CLI: install it with
-`curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`, run `kimi login`, then run `/kimi:setup` inside
-Claude. See [thxCode/kimi-code-plugin-cc](https://github.com/thxCode/kimi-code-plugin-cc) for provider setup.
-
 ### Local helpers
 
 Install crawl4ai for the tracked `crawl4ai-search` skill:
@@ -341,13 +317,14 @@ After changing a skill:
 python3 skills/my-workflow/scripts/validate_shared_skills.py
 ```
 
-The shared validator checks the `my-*` frontmatter schema, accepts the Claude/Kimi
+The shared validator checks the `my-*` frontmatter schema, accepts the Claude/Kimi/OMP
 `disable-model-invocation` extension and verifies its equivalent Codex `agents/openai.yaml` policy, and
 rejects any `namespace:name` plugin reference — the form that resolves on one host and silently breaks on
-the other three. It also holds four things in agreement that drift apart quietly: every tracked skill is
-routed into from somewhere, the `.gitignore` allowlist matches the skills on disk and pairs each directory
-with its `/**` companion, every distilled file and `CREDITS.md` name each other, and no tracked document
-carries an emoji. Use Codex's `quick_validate.py` directly for standard-only skills.
+the others — and rejects retired bridge-plugin references. It also holds four things in agreement that drift
+apart quietly: every tracked skill is routed into from somewhere, the `.gitignore` allowlist matches the
+skills on disk and pairs each directory with its `/**` companion, every distilled file and `CREDITS.md` name
+each other, and no tracked document carries an emoji. Use Codex's `quick_validate.py` directly for
+standard-only skills.
 
 There is deliberately no check that a backticked name resolves to a skill. Measured against this repository
 it flags twenty-five ordinary terms for each real miss, and a gate that noisy gets switched off — which is
@@ -362,7 +339,7 @@ Still verify by hand:
 - every `SKILL.md` has a unique lowercase `name` and a discriminating `description`;
 - every referenced local file exists;
 - no shared workflow contains legacy prompt placeholders, stale command paths, or concrete model names;
-- Claude, Codex, Kimi, and Qwen each discover one copy of every `my-*` skill from their normal skill catalog.
+- Claude, Codex, Kimi, Qwen, and OMP each discover one copy of every `my-*` skill from their normal skill catalog.
 
 This repository's `.gitignore` denies everything and allowlists what it tracks, so a plain `grep -r` run through
 an ignore-aware wrapper will silently skip `README.md` and other untracked files. Use `command grep` when

@@ -33,6 +33,12 @@ PROVENANCE = re.compile(r"^Distilled from ", re.MULTILINE)
 NAMESPACED_REF = re.compile(r"`([a-z0-9-]+:[a-z0-9-]+)`")
 # Not a skill reference — the conventional way to cite a source location.
 NAMESPACED_ALLOWED = {"file:line"}
+RETIRED_BRIDGE_REF = re.compile(
+    r"codex-plugin-cc|kimi-code-plugin-cc|(?<![a-z0-9_/*-])/?"
+    r"(?:codex|kimi):(?:[a-z0-9_-]+|\*(?!\*))|"
+    r"(?:codex@openai-codex|kimi@moonshotai-kimi)",
+    re.IGNORECASE,
+)
 
 ALLOWED = {
     "name",
@@ -184,6 +190,14 @@ def check_namespaced_refs() -> None:
             )
 
 
+def check_retired_bridge_refs() -> None:
+    for path in corpus():
+        if not path.exists() or not is_tracked(path):
+            continue
+        match = RETIRED_BRIDGE_REF.search(path.read_text())
+        assert match is None, f"{path}: retired bridge-plugin reference {match.group(0)!r}"
+
+
 def main() -> int:
     skills = sorted(ROOT.glob("my-*/SKILL.md"))
     assert skills, f"{ROOT}: no my-* skills found"
@@ -215,6 +229,8 @@ def main() -> int:
 
     check_namespaced_refs()
     print("ok no host-specific plugin references")
+    check_retired_bridge_refs()
+    print("ok no retired bridge-plugin references")
 
     names = tracked_skills()
     check_orphans(names)
