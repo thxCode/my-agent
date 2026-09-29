@@ -12,10 +12,11 @@ engineering workflow rather than one isolated action.
 
 - Report that cannot be reproduced locally → `my-triage`.
 - Confirmed local bug that does not need a tracked spec → `my-debug`.
+- Vulnerability report → `my-advisory`; its disclosure rules override the ordinary lanes.
+- Report or existing specs requiring several supervised spec-to-PR cycles and durable closure → `my-loop`.
 - Feature, tracked bug, or GitHub issue that needs a durable proposal → `my-spec`, then `my-plan`.
 - Planned spec or debug artifact ready to implement → `my-build`.
 - Built branch ready for final validation and PR preparation → `my-ship`.
-- Vulnerability report → `my-advisory`; its disclosure rules override the ordinary lanes.
 - Full ownership transfer to another agent/window → `my-handoff`.
 - Supervised multi-agent work or a task DAG → `my-crew`.
 - Audit the workflow assets themselves → `my-refine`.
@@ -28,8 +29,10 @@ turn when the user has already authorized end-to-end or unattended execution.
 
 `my-advisory`, `my-debug`, `my-refine`, `my-spec`, and `my-triage` preserve their original user-only invocation
 policy. If this router was selected implicitly, do not read or enter one of those skills unless the user already
-invoked that skill explicitly through the current host. Recommend the host's explicit skill syntax and stop at
-that boundary. Once explicitly started, the selected workflow may follow its documented downstream transitions.
+invoked that skill explicitly through the current host, or explicitly invoked `my-loop` for its documented
+`my-spec` stage chain. Recommend the host's explicit skill syntax and stop at that boundary. An implicit
+`my-loop` match does not bypass this rule. Once explicitly started, the selected workflow may follow its
+documented downstream transitions.
 
 ## Runtime boundary
 

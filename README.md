@@ -128,10 +128,12 @@ depend on legacy prompt placeholder expansion.
 
 `my-advisory`, `my-debug`, `my-refine`, `my-spec`, and `my-triage` are explicit-only. Their shared frontmatter
 enforces this in Claude and Kimi; each skill's `agents/openai.yaml` expresses the equivalent Codex policy.
-`my-workflow` may recommend these entries but does not enter them implicitly.
+`my-workflow` may recommend these entries but does not enter them implicitly. Explicit `my-loop` invocation
+includes its documented `my-spec` stage chain; an implicit match does not.
 
 ## Lifecycle
 
+- **`my-loop`** — inventory resources, resolve costly unknowns in a PoC, then coordinate specs through PRs and issue closure.
 - **`my-triage`** — investigate a report that cannot be reproduced locally through a resumable evidence ledger.
 - **`my-debug`** — diagnose a confirmed local bug and write a local fix artifact.
 - **`my-spec`** — create a tracked feature/bug proposal from a request or GitHub issue.
