@@ -87,6 +87,20 @@ Fill the KEP-style template below — it *is* the coverage checklist; address ev
 **Implementation Plan** and **Test Plan** as placeholders (`my-plan` completes them); no other leftover
 placeholders.
 
+### Evidence and references
+
+- A spec may cite repository documents only when they are committed to the target repository and resolve
+  for any repo reader. Use relative links from the spec; cite external sources by URL, pinning the version or
+  commit when the claim depends on it. This applies to both versioned and local-only specs.
+- NEVER cite never-committed evidence by link or path, including plain text or inline code: other repo readers
+  cannot resolve it. Program reports, `evidence/`, `poc/`, `.claude/reports/`, worktree scratch, and absolute
+  host paths are not references when they exist only locally. A file existing on disk or in the Git index
+  does not make it committed.
+- Inline the necessary facts from local or off-repo evidence in the relevant section or an appendix. Describe
+  the source in words (what was measured or read, during which activity); preserve the conditions, results,
+  limitations, and uncertainty needed to assess the claim. Do not replace a path with an unexplained artifact
+  identifier or omit the evidence the claim needs.
+
 Two metadata lines under the title:
 - **`Status:`** — lifecycle trace; initial `Specified`, then `Planned`, next `Building` and `Built`, finally `Shipped`.
 - **`Type:`** — the Phase 2 classification (`Feature` / `Bug fix`); `my-build` reads it to pick the branch prefix.
@@ -159,7 +173,14 @@ As a <user>, I want <capability>, so that <benefit>.
    - **Issue-initiated** (Phase 1 resolved `the user's current request` to an issue) → `<dir>/<issue-number>-<title>.md`;
      also record the issue link in the spec (Summary or Motivation).
    - **Otherwise** → today's date (`date +%Y-%m-%d`) → `<dir>/<yyyy-mm-dd>-<title>.md`.
-4. **Present the drafted spec and its filename; wait for confirmation** — your approval to write.
+4. Audit references before presenting the draft. Read the whole spec, including appendices, Markdown link
+   definitions, and plain-text or inline-code citations. For every repository document cited, resolve its path
+   from the spec's directory and verify the target in the target repository's committed tree, for example
+   `git -C <repo> cat-file -e HEAD:<repo-relative-path>`; check any section anchor too. Disk existence alone is
+   insufficient. Inline the evidence behind every never-committed reference per Phase 4 and repeat the audit
+   until none remain. Then **Present the drafted spec and its filename; wait for confirmation** — your approval
+   to write.
 5. Save to `<dir>/<prefix>-<title>.md` (create the dir if missing). **File already exists → don't overwrite
    silently** — ask: overwrite, pick a new title, or switch to `my-plan` on the existing one. Confirm the path.
-6. **Ask whether to run `my-plan` now.** If yes, continue into `my-plan` with this spec.
+6. Re-read the saved spec and repeat the reference audit before declaring it done. **Ask whether to run
+   `my-plan` now.** If yes, continue into `my-plan` with this spec.
