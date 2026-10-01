@@ -23,10 +23,10 @@ a supervised crew.
    create; report that and stop rather than silently substituting a subagent.
 3. Run `orca skills get orca-cli` with the resolved executable and follow its current **Full Handoffs** guide.
    Do not copy flags from this skill or memory.
-4. Resolve the target agent from the user's request — claude, codex, kimi, qwen, or omp; ask only if it is missing.
-   The target runs in its provider's unattended approval mode (`qwen --yolo` or the provider's
-   equivalent). Use the current checkout when ownership continues exactly where this session stopped, or a
-   separate worktree when the tasks could overlap.
+4. Resolve the target agent from the user's request; ask only if it is missing. Verify the installed Orca
+   launcher's support and follow **Prepare unattended workers** in `agent-runtime.md` before delivering
+   the brief. For mcode TUI, enable and verify Full access after launch. Use the current checkout when
+   ownership continues exactly where this session stopped, or a separate worktree when the tasks could overlap.
 
 ## Write the durable brief
 
@@ -68,7 +68,8 @@ decision; no cross-window message can widen the user's authorization.
 - Show the brief and intended target/placement before spending another agent's quota unless the user already
   authorized the handoff.
 - Use the version-matched Orca guide to create the target — the window does not exist yet, so Orca creates it
-  whatever provider it runs. Then send one short instruction pointing to the brief, over the carrier the
+  whatever provider it runs. Complete and verify its unattended permission setup, then send one short
+  instruction pointing to the brief, over the carrier the
   channel table in `multi-window.md` gives for that peer: a Claude target is reachable by Claude's attributed
   cross-session message, which is preferable because a raw terminal write reaches the target unattributed and
   reads there like a user turn.

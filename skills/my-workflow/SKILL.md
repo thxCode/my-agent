@@ -38,4 +38,6 @@ documented downstream transitions.
 
 Before delegating or opening another agent window, read
 `~/.agents/skills/my-workflow/references/agent-runtime.md`. It defines the portable boundary between
-Claude, Codex, Kimi, Qwen, OMP, and Orca. For ordinary single-agent work, stay in the current session.
+the current host's native workers and Orca coordination, including permission setup before task delivery.
+For installation and skill discovery, see `references/host-adapters.md`. For ordinary single-agent work,
+stay in the current session.

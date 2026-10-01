@@ -1,7 +1,7 @@
 # Model routing — capability classes, not vendor names
 
 Shared workflow instructions never prescribe a concrete model name or a vendor-specific model-switch command.
-Model catalogs, aliases, and supported reasoning controls differ across Claude, Codex, Kimi, Qwen, and OMP and change
+Model catalogs, aliases, and supported reasoning controls differ across CLI hosts and change
 over time.
 
 ## Defaults

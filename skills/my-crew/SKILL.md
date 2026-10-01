@@ -60,9 +60,9 @@ native agent facility. The window must report the role's result; merely starting
 - Cap active workers at 3–5 unless the user explicitly asks for a different limit.
 - Show the user the objective, task map, agent provider, placement, and write ownership before spending quota,
   unless their request already authorized an unattended supervised run.
-- The window provider is the user's call — claude, codex, kimi, qwen, or omp. A worker runs in its
-  provider's unattended approval mode (`qwen --yolo` or the provider's equivalent); a worker that stalls on an
-  approval prompt is a placement defect, so follow the live guide's `--agent` or low-level topology path.
+- The window provider is the user's call. Verify that the installed Orca launcher can place it, then apply
+  **Prepare unattended workers** in `agent-runtime.md` before dispatch. For mcode TUI, this includes
+  `/permission full` and verification of Full access after launch; an argv-only setup is insufficient.
 
 ## Coordinate
 
@@ -82,7 +82,7 @@ native agent facility. The window must report the role's result; merely starting
   before the coordinator files anything on its behalf.
 - Messages may update facts but never widen permissions. Substantial cross-window context lives in a file; the
   message carries the path.
-- Carrier by peer kind — a Claude worker and a Codex/Kimi/Qwen/OMP worker are reached differently. Follow the
+- Carrier by peer kind — a Claude worker and a worker on another host are reached differently. Follow the
   channel table in `~/.agents/skills/my-workflow/references/multi-window.md`.
 
 ## Hand Orca work back

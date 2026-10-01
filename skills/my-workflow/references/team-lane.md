@@ -15,8 +15,8 @@ Read `agent-runtime.md` and apply its **Detect the Orca host** signals, then sel
    facility. Use it when orchestration is unavailable but the run still needs parallel write-capable workers.
    Orca placed those workers, so it still owns window state; the team facility only carries messages.
 3. **Host-native team:** use the current host's native subagent capability when the session is not Orca-hosted,
-   or the user explicitly wants in-session workers. State which host path is running. Claude, Codex, Kimi,
-   Qwen, and OMP use different spawn tools; preserve the contract rather than translating tool names.
+   or the user explicitly wants in-session workers. State which host path is running. CLI hosts use different
+   spawn tools; preserve the contract rather than translating tool names.
 4. **Sequential fallback:** if no path can provide write-capable workers, offer ordinary `my-build`
    sequencing. Never pretend a sequential run is a team run.
 
@@ -45,8 +45,9 @@ Use the `task-worker` role from `agent-runtime.md`. Every task starts cold and r
   `decisions.md`;
 - the required completion report: changed files, tests, outside-ownership needs, and decisions refused.
 
-For Orca, put this contract in the Task spec and use an injected Dispatch or the version-matched `worker-start`
-flow. For a host-native worker, include the same contract in its prompt and wait for all workers in the round.
+For Orca, put this contract in the Task spec, then prepare and verify the worker's unattended permissions
+as `agent-runtime.md` requires before injecting the Task or using the version-matched `worker-start` flow.
+For a host-native worker, include the same contract in its prompt and wait for all workers in the round.
 
 `Gate: review` means the worker remains read-only until the user approves its plan. If the chosen runtime cannot
 relay a plan-approval gate, run that task sequentially in the lead session.

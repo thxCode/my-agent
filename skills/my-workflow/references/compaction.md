@@ -1,6 +1,6 @@
 # Context checkpoint
 
-Shared by `my-plan`, `my-debug`, `my-build`, `my-ship`, and `my-crew`. Claude, Codex, Kimi, Qwen, and OMP expose
+Shared by `my-plan`, `my-debug`, `my-build`, `my-ship`, and `my-crew`. CLI hosts expose
 different context meters and reset/compaction controls, so this reference defines the durable state, not a host
 command.
 

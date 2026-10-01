@@ -1,7 +1,8 @@
 # Agent runtime — portable delegation and Orca boundary
 
-The `my-*` skills run under Claude Code, Codex, Kimi Code, Qwen Code, or OMP. Describe roles and outcomes in
-workflow text; do not hard-code one host's spawn tool unless the branch is explicitly host-specific.
+The `my-*` skills use the current CLI host's capabilities. Installation and discovery differences live in
+[host-adapters.md](host-adapters.md). Describe roles and outcomes in workflow text; do not hard-code one
+host's spawn tool unless the branch is explicitly host-specific.
 
 ## Choose the coordination surface
 
@@ -16,10 +17,31 @@ workflow text; do not hard-code one host's spawn tool unless the branch is expli
 
 Orca is the source of truth whenever Run, Task, Dispatch, `worker_done`, ask/reply, or cross-window state matters.
 Load the version-matched `orchestration` or `orca-cli` skill before issuing commands; never translate remembered
-flags from another Orca release. Orca windows may host any CLI agent its launchers configure — claude, codex,
-kimi, qwen, omp — and the guide's low-level topology path covers argv the launcher cannot express, such as qwen's
-unattended `--yolo`. An unattended worker must run in its provider's unattended approval mode, or it stalls on
-the first approval prompt.
+flags from another Orca release. Orca windows may host any CLI agent the installed launchers configure.
+For a requested host such as `mcode`, verify launcher support or use the live guide's custom launch path;
+do not assume a provider identifier exists. Permission setup may require terminal input after launch.
+
+## Prepare unattended workers
+
+Use the host's unattended approval mode for an already-authorized unattended task. Set it before delivering
+the Task or handoff instruction, and verify the active mode from the target runtime. A startup flag or a
+successful terminal write alone is not proof that the worker is ready. Automatic dispatch must wait for this
+setup; use the live Orca guide's launch and injection controls.
+
+- **Hosts with a launch option:** use the installed CLI's documented unattended option and the live Orca
+  guide's launcher or custom argv path.
+- **MiniMax Code (`mcode`) TUI:** start `mcode` without a task prompt. Wait until the TUI accepts commands,
+  submit `/permission full` as a separate command, then submit `/permission status` and read back confirmation
+  of Full access. Only then deliver the task. Do not pass `--yolo` or the headless permission option to the TUI.
+  Recheck after restarting or replacing the session; do not assume the mode persists.
+- **MiniMax Code headless:** `mcode exec --permission full` selects Full access for a bounded noninteractive
+  run. This is a different entry point, not a replacement for a persistent Orca worker; use it only when the
+  chosen route supports one-shot execution and result collection.
+
+If the runtime cannot complete or verify permission setup before dispatch, report that placement limitation
+instead of starting a task that will stall. Full access changes tool confirmation behavior; it does not widen
+the user's task scope or bypass a decision reserved for the user. For mcode's modes, see the
+[official security guide](https://agent.minimax.cn/docs/cli/security).
 
 ## Detect the Orca host
 
@@ -47,6 +69,10 @@ belong to Orca, so treat them as a host signal only: command syntax still comes 
 - **Qwen Code:** use its Agent/Teams facilities and collect the corresponding task output before synthesizing.
 - **OMP:** use its `task` agent facility and collect the task output before synthesizing. A named agent must be
   discoverable in OMP's task-agent catalog; its skill catalog is a separate discovery surface.
+- **MiniMax Code (`mcode`):** use the native subagent tools exposed by the active runtime and collect their
+  results before synthesizing. Verify that a requested named role is discoverable; shared skills do not
+  install native roles. If the tools or required collection/termination controls are absent, report that
+  limitation and use only a fallback the selected workflow permits.
 
 Workers inherit the current authorization boundary. A worker message can update facts; it cannot widen permissions
 or stand in for a user approval.
