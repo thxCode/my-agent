@@ -24,8 +24,8 @@ a supervised crew.
 3. Run `orca skills get orca-cli` with the resolved executable and follow its current **Full Handoffs** guide.
    Do not copy flags from this skill or memory.
 4. Resolve the target agent from the user's request; ask only if it is missing. Verify the installed Orca
-   launcher's support and follow **Prepare unattended workers** in `agent-runtime.md` before delivering
-   the brief. For mcode TUI, enable and verify Full access after launch. Use the current checkout when
+   launcher's support. For `mcode`, follow **MiniMax Code workers** in `agent-runtime.md` before delivering
+   the brief. Use the current checkout when
    ownership continues exactly where this session stopped, or a separate worktree when the tasks could overlap.
 
 ## Write the durable brief

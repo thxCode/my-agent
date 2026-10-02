@@ -51,10 +51,6 @@ project instruction files, and surrounding code. **Verify before you commit.**
 
    State the chosen run mode **and** the tracking mode in your first message.
 
-   Judge permission mode from the active runtime. For mcode TUI, `/permission status` must show Full access
-   before treating it as unattended-capable; Auto can still ask. The `auto` workflow token selects chaining,
-   not a host permission change. Worker setup follows **Prepare unattended workers** in `agent-runtime.md`.
-
    **Team mode → read `~/.agents/skills/my-workflow/references/team-lane.md` now and follow it in place of Phase 3's
    one-task-at-a-time sequencing.** Everything else in this skill still applies. `team` passed but the task
    list has no `Blocked by:` / `Owns:` → don't improvise a DAG: say so, recommend `my-plan` to annotate it,
