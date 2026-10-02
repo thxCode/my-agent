@@ -79,7 +79,8 @@ ledgers, handback fields, and the checks at each stage gate.
 - The live report carries design conclusions, not workflow status. When a verified result overturns a report
   conclusion, correct that conclusion in place and record the correction and its evidence in `HISTORY.md`.
 - The coordinator alone writes these three ledgers and the live report. A worker writes only its assigned
-  handbacks, summary, evidence directory, branch, and repository spec. Use absolute paths across worktrees.
+  handbacks, summary, evidence directory, branch, and repository spec. Use absolute paths in program records
+  across worktrees.
   Stable spec, decision, and issue identifiers are never recycled or silently renumbered.
 
 ## 4. Run each spec through the existing stages
@@ -90,6 +91,7 @@ ledgers, handback fields, and the checks at each stage gate.
    exact authorization, escalation triggers, review budget, and required handback path. Name any issue assigned
    to this spec and whether it is to be fixed or re-evaluated. Serialize specs whose planned owned paths
    overlap; recompute that overlap if a plan changes its owned paths.
+   Apply the reference boundary beside the HANDOFF template in [records.md](references/records.md).
 2. For supervised windows, follow `my-crew` and the current
    `~/.agents/skills/my-workflow/references/agent-runtime.md` and
    `~/.agents/skills/my-workflow/references/multi-window.md` references.

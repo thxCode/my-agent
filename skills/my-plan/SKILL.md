@@ -133,6 +133,9 @@ code solid enough prior to committing the changes necessary to implement this en
 
 ## Phase 5 — Review & write back
 
+Read and apply [spec-content.md](../my-workflow/references/spec-content.md); run its audit before presenting
+changes.
+
 1. Present the proposed spec changes (enriched Design Details + filled Test Plan) for **human review**. Put two
    questions to the user alongside the diff — they are what make the DAG trustworthy:
    - **Is the granularity right?** Any task too coarse to fit one context window, or so fine the overhead
@@ -144,7 +147,8 @@ code solid enough prior to committing the changes necessary to implement this en
    **Modify no other file.**
 4. Confirm the saved path. **Consistency check:** read Goals / Features / User Stories against the Implementation
    Plan you just wrote; reconcile any upstream statement the plan now contradicts. The spec must read cleanly
-   top-to-bottom — clear, logical, self-consistent.
+   top-to-bottom — clear, logical, self-consistent. Re-read the saved spec and repeat the spec content audit before
+   declaring it done.
 5. **Offer the next step** (user may decline both and stop):
    - **Compact, then build** — context heavy / want a clean slate. Emit the three-line block per
      `~/.agents/skills/my-workflow/references/compaction.md`.

@@ -138,12 +138,16 @@ The coordinator writes `spec-<ID>/HANDOFF.md` before dispatch. The worker writes
 user-initiated merge. Never overwrite an earlier handback. Keep the spec body in the repository's `my-spec`
 location. For a standalone issue or validation batch, use the same shape under its own stable coordinate.
 
+Before writing a handoff, read and apply [spec-content.md](../../my-workflow/references/spec-content.md)
+for the boundary between program-local records and repository artifacts.
+
 ```markdown
 # Handoff: <coordinate and outcome>
 
 To: <worker> | From: <coordinator> | Program: <absolute path>
 Worktree: <absolute path> | Branch/base: <branch and SHA>
 Source: <report sections, applicable PoC check IDs/results/evidence, recorded decisions>
+Repository references: read and apply ~/.agents/skills/my-workflow/references/spec-content.md before writing repository artifacts.
 Assigned issues: <IDs, closure criteria, fix or re-evaluate>
 Stages: <first unfinished stage through permitted last stage>
 Owns: <paths> | Excludes: <paths and actions>
@@ -186,7 +190,8 @@ Report changes: <claims confirmed, overturned, or still uncertain>
 - Before dispatch: confirm the source and charter, next spec dependencies, assigned issues, owned paths, base,
   and a completion channel. Verify the worker can read the absolute program path.
 - At a stage handback: read the artifact and compare it with the stage's acceptance and actual repository or
-  runtime state; then update `STATUS.md` and append `HISTORY.md` in the same coordination turn.
+  runtime state. Run the shared spec content audit on any spec produced or changed before accepting the gate;
+  then update `STATUS.md` and append `HISTORY.md` in the same coordination turn.
 - Before a coordinator merge: read the current PR head and all required check conclusions, review state,
   completed current-head review from expected sources, thread state, and charter. A green summary or the
   worker's claim is insufficient.
