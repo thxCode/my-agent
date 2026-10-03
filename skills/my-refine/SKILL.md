@@ -105,7 +105,7 @@ for f in sys.argv[1:]:
     print('ok',f,list(d))
 " <files>
 
-# 2 — pointers resolve both ways: every referenced file exists, every reference file is cited at least once
+# 2 — pointers resolve both ways: every referenced file exists and is tracked (git ls-files --error-unmatch), every reference file is cited at least once
 # 3 — ordinals: no stale 'item N' / 'items N–M' left pointing at a renumbered list
 # 4 — each fixed conflict: the old wording greps empty, the new wording is present
 # 5 — untouched-by-design blocks (a tested bash snippet, a template) are byte-identical in `git diff`
