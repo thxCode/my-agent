@@ -10,6 +10,8 @@ Refine the plan inside a spec: **the user's current request**
 This skill **only ever writes back the one spec file** — no other edits. Stay read-only otherwise.
 
 - **Language.** Write the spec in **English**; talk to the user in their configured language.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Phase 1 — Resolve the spec

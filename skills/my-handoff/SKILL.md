@@ -31,7 +31,8 @@ a supervised crew.
 ## Write the durable brief
 
 Create `<cwd>/.claude/handoffs/<yyyy-mm-dd>-<slug>.md`, keep it local, and never stage it. Write it in the
-session's configured language; project artifacts continue to follow project conventions.
+session's configured language; project artifacts continue to follow project conventions. Write the brief per
+`~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 
 The receiving agent starts cold. Include:
 

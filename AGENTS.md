@@ -104,6 +104,19 @@ A rule without a gate is a wish. Confirm its scope; an ignore-aware search never
 
 The test: would an already-loaded file have answered this? Then it isn't memory.
 
+## 8. Write for the Reader
+
+**80% of the way to ASD-STE100. Short sentences. One idea each.**
+
+- One idea per sentence; split anything past ~20 words.
+- Active voice; imperative for instructions; condition before instruction ("If X, do Y").
+- Plain words; the same thing keeps the same name; no filler or stacked hedges.
+- Applies to every reply to the user and every text written for humans — docs, specs, PRs, comments, commit bodies.
+- Language follows the user's interaction context; this rule never switches it. Not English? Carry the structure, not the lexicon. Code, fixed commit formats, and verbatim material (quotes, logs, evidence) keep their own rules.
+- Full form: `~/.agents/skills/my-workflow/references/writing-style.md`.
+
+The test: could a tired non-native reader misread this sentence? Then split it.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication,

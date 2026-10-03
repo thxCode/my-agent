@@ -19,6 +19,8 @@ find. `my-spec` sets the precedent — name the artifact, be the entry to the ch
 
 - **Language.** Write the artifact, the advisory and every outward draft in **English**; talk to the user in
   their configured language.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 **Boundaries.**

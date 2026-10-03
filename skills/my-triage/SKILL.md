@@ -25,6 +25,8 @@ three routes into another on its own.
   configured language. `comment.md` splits: its **prose** mirrors the language the reporter used in the
   thread, while the script, its variable names, its output format and its verdict line stay English —
   `~/.agents/skills/my-workflow/references/probe-craft.md` § 8 has the rule and the reason.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`. This skill
   reads source to check a claim; it writes none.
 

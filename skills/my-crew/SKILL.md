@@ -87,7 +87,8 @@ native agent facility. The window must report the role's result; merely starting
 ## Hand Orca work back
 
 A settled worker writes `<cwd>/.claude/handoffs/<yyyy-mm-dd>-<slug>-handback.md` and sends only that path back.
-Keep it local and never stage it; write it in the session's configured language. Its body is the completion
+Keep it local and never stage it; write it in the session's configured language, per
+`~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100). Its body is the completion
 report `roles/task-worker.md` already defines — `task`, `status`, `changed`, `tests`, `outside owns`,
 `for the lead` — plus the provenance of every finding it carries. A review Task instead reports its question,
 findings with evidence and severity, unresolved doubts, and confirmation that it made no edits.

@@ -15,6 +15,8 @@ project conventions (target **Code Style** & **Boundaries** when present, applic
 - **Language.** Write target edits (e2e fix write-backs), commit messages and the PR title/body in
   **English** — reviewers reading the PR never saw this session's settings; in-repo artifacts (tests,
   overview, docs/ADRs) follow the project's conventions; talk to the user in their configured language.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Phase 1 — Resolve the ship target

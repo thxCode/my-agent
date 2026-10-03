@@ -82,6 +82,8 @@ ledgers, handback fields, and the checks at each stage gate.
   handbacks, summary, evidence directory, branch, and repository spec. Use absolute paths in program records
   across worktrees.
   Stable spec, decision, and issue identifiers are never recycled or silently renumbered.
+- Write the ledgers, handoffs, and every message to the user per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 
 ## 4. Run each spec through the existing stages
 

@@ -23,7 +23,8 @@ engineering workflow rather than one isolated action.
 
 Read and follow the selected sibling skill's `SKILL.md`. Do not make the user restate context already present in
 the conversation or in the workflow artifact. At a stage boundary, offer the next stage and continue in the same
-turn when the user has already authorized end-to-end or unattended execution.
+turn when the user has already authorized end-to-end or unattended execution. Write every user-facing message
+per `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 
 ## Explicit-only entries
 

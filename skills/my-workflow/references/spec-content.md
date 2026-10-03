@@ -26,6 +26,8 @@ stage; record unresolved questions rather than inventing answers.
   dependency; do not leave a broken reference or silently drop supporting evidence.
 - Public external sources may be cited by URL, pinning the version or commit when the claim depends on it.
   Include the essential facts in the spec; links supplement its explanation.
+- Write every field per [writing-style.md](writing-style.md) (80% ASD-STE100): short sentences, one idea
+  each, active voice.
 
 ## Audit
 

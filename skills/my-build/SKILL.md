@@ -14,6 +14,8 @@ project instruction files, and surrounding code. **Verify before you commit.**
 
 - **Language.** Write target edits (idea write-ins, task check-offs) in **English**; for other artifacts (code,
   comments, commits, docs) follow the project's conventions; talk to the user in their configured language.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Phase 1 — Resolve the target

@@ -1,7 +1,8 @@
 # Program records and handbacks
 
 Read this reference when starting, resuming, or closing a `my-loop` program. Keep the records compact enough for
-a new coordinator to read before acting. The examples show fields, not fixed project conventions.
+a new coordinator to read before acting. The examples show fields, not fixed project conventions. Write every
+record and handback per `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 
 ## `STANDARD.md`: the task-specific contract
 

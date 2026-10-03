@@ -15,6 +15,8 @@ Like `my-plan`, this skill **only writes one artifact** — a debug doc under `.
 that deserves a **versioned, tracked** spec goes through `my-spec`'s Bug-fix path instead.
 
 - **Language.** Write the artifact in **English**; talk to the user in their configured language.
+- **Style.** Write everything a human reads — the conversation with the user included — per
+  `~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
 - **Source lookup.** Read/trace source: **GitNexus** (if available) → **DeepWiki** → `grep`/`find`.
 
 ## Artifact — `.claude/debugs/<yyyy-mm-dd>-<title>.md`

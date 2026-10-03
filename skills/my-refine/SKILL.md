@@ -18,6 +18,9 @@ instrument for that second question, and running it is a separate job.
 
 **Language.** Write asset edits in **English**; talk to the user in their configured language.
 
+**Style.** Write everything a human reads — the conversation with the user included — per
+`~/.agents/skills/my-workflow/references/writing-style.md` (80% ASD-STE100).
+
 ## Phase 1 — Scope and baseline
 
 1. **Resolve the target.**
@@ -52,10 +55,16 @@ feeling is an opinion — drop it.
 
 ## Phase 3 — Prune probes
 
-Read `~/.agents/skills/my-workflow/references/skill-craft.md` and
-`~/.agents/skills/my-workflow/references/prompt-hygiene.md`, then work both over every file in scope. In
+Read `~/.agents/skills/my-workflow/references/skill-craft.md`,
+`~/.agents/skills/my-workflow/references/prompt-hygiene.md`, and
+`~/.agents/skills/my-workflow/references/writing-style.md`, then work all three over every file in scope. In
 particular, distinguish observable verification from generic verification rituals, and remove provider-specific
 model or effort controls from shared assets.
+
+**Style drift** — a rule sentence that violates `writing-style.md`: two ideas in one sentence, an instruction
+in passive voice, a condition trailing its instruction, filler or stacked hedges. Each is reported with its
+before text and clears the same burden of proof as any other cut; the fix cuts filler or flips voice, one
+sentence at a time.
 
 The unit of change is **one word, one phrase, one sentence.** Rewriting a paragraph, restructuring phases, or
 touching a user-confirmation gate is a different job than this one.
