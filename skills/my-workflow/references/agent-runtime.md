@@ -46,7 +46,7 @@ belong to Orca, so treat them as a host signal only: command syntax still comes 
 - **Claude Code:** use its available subagent or Agent Teams tools. Do not require Agent Teams merely to run a
   bounded helper.
 - **Codex:** use its collaboration/subagent tools and wait for all requested workers before synthesizing. Custom
-  agents may live in `.codex/agents/`, but the shared role contract below is sufficient when none is installed.
+  agents may live in `~/.codex/agents/`, but the shared role contract below is sufficient when none is installed.
 - **Kimi Code:** use its Agent/Task facilities and collect the corresponding task output before synthesizing.
 - **Qwen Code:** use its Agent/Teams facilities and collect the corresponding task output before synthesizing.
 - **OMP:** use its `task` agent facility and collect the task output before synthesizing. A named agent must be
@@ -58,6 +58,10 @@ belong to Orca, so treat them as a host signal only: command syntax still comes 
 - **ZCode (`zcode`):** use the active runtime's `Agent` tool. For background agents, collect results through
   `TaskOutput` and stop unfinished work through `TaskStop`. Verify these tools are exposed and the requested
   role is supported before dispatch; the shared skill catalog does not install native agent roles.
+- **Antigravity (`agy`):** use `invoke_subagent` to dispatch named or defined subagents, communicate via
+  `send_message`, and monitor or stop workers with `manage_subagents`. Subagents execute in the background
+  with reactive wakeup; do not poll for completion. Verify named roles exist in `~/.agents/agents/` or declare
+  custom roles via `define_subagent`.
 
 Workers inherit the current authorization boundary. A worker message can update facts; it cannot widen permissions
 or stand in for a user approval.
@@ -89,8 +93,7 @@ wrong guess kills somebody else's live work.
 ## Shared worker roles
 
 Load the complete role contract from `~/.agents/skills/my-workflow/references/roles/` and include that path in
-the native-agent prompt or Orca Task spec. Claude's `~/.claude/agents/` files are thin adapters to these same
-contracts:
+the native-agent prompt or Orca Task spec. The files in `~/.agents/agents/` are thin adapters to these same contracts:
 
 - `task-worker` — implement exactly one planned task, stay within `Owns:`, use TDD, never commit, stop on design
   changes.
