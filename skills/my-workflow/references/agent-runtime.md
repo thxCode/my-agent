@@ -21,9 +21,34 @@ flags from another Orca release. Orca windows may host any CLI agent the install
 
 ## MiniMax Code workers
 
-Orca does not auto-detect `mcode`. Use the live guide's custom launch path to start `mcode`, then send
-`/permission full` before delivering an authorized unattended task. Other agents use the live Orca guide's
-standard launch flow.
+Orca does not auto-detect `mcode`. Use the live guide's custom launch path to start `mcode`. Other agents use
+the live Orca guide's standard launch flow.
+
+`mcode` buffers multi-line paste input as an unsubmitted draft (`Long draft · Enter send`). In bracketed paste
+mode, a trailing Enter in `orca terminal send --text ... --enter` can be absorbed into the draft buffer.
+
+To ensure `mcode` starts its turn:
+
+- Put detailed context into a file and send a single-line path pointer (`multi-window.md`). A single-line prompt
+  does not trigger draft mode and submits reliably.
+- For a fresh worker, pass the prompt directly on the command line: `--command 'mcode "<prompt>"'`.
+- If you send multi-line text to an existing terminal, check the terminal with `terminal read`. If the text
+  remains in the input box, send a standalone Enter: `orca terminal send --terminal <handle> --enter`.
+
+## Worktree workspace trust gates
+
+A newly created worktree changes the working directory. Both Kimi Code and Antigravity (`agy`) prompt for
+folder trust in an unregistered directory:
+
+- **Kimi Code:** prompts `Trust this folder?` with `Trust this folder` selected by default.
+  Neither `kimi -y` nor `kimi --auto` bypasses this modal.
+- **Antigravity (`agy`):** prompts `Do you trust the contents of this project?` with `Yes, I trust this folder`
+  selected by default. `--dangerously-skip-permissions` does not bypass this prompt.
+- **Orca:** does not auto-trust new worktree folders for launched CLIs.
+
+When dispatching an agent in a fresh worktree, inspect the screen with `terminal read --screen`. If a trust
+prompt appears, send a standalone Enter: `orca terminal send --terminal <handle> --enter`. Then wait for
+readiness with `terminal wait --for tui-idle`.
 
 ## Detect the Orca host
 

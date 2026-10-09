@@ -12,6 +12,7 @@ instruction paths, skill discovery, invocation syntax, and MCP configuration loc
 ~/.claude/agents                -> ~/.agents/agents
 ~/.claude/statusline.sh         -> ~/.agents/statusline-claude.sh
 ~/.kimi-code/statusline.sh      -> ~/.agents/statusline-kimi.sh
+~/.gemini/config/skills         -> ~/.agents/skills
 ```
 
 `AGENTS.md` is the canonical shared instruction file. Global loading depends on the host's supported paths;

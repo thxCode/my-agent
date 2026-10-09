@@ -77,3 +77,10 @@ Writing bytes into a terminal is not proof that an agent consumed them. For a ha
 back using the current Orca guide and verify the instruction appeared after the agent became ready. For
 orchestration, verify Task and Dispatch records and wait for lifecycle messages rather than inferring completion
 from terminal appearance.
+
+In a fresh worktree, Kimi Code or Antigravity (`agy`) may stop at a folder trust prompt before reaching idle. If
+`terminal read --screen` detects a trust dialog, send a standalone Enter before waiting for `tui-idle`.
+
+Interactive TUIs with bracketed paste or draft modes (such as `mcode`) may buffer multi-line text without starting
+a turn. If `terminal read` shows the text hovering in the input box, send a standalone Enter:
+`orca terminal send --terminal <handle> --enter`.
