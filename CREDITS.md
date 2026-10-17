@@ -4,7 +4,7 @@ Parts of this repository are distilled from other people's work. None of it is v
 file below was rewritten for this repository's routing, hosts, and typography, and several merge more than
 one source. This file is the attribution a dependency would otherwise have carried.
 
-All three upstreams are MIT, as is this repository, so the permission notice travels with the copyright
+All four upstreams are MIT, as is this repository, so the permission notice travels with the copyright
 line reproduced in each section.
 
 Every derived file carries its own provenance in a line under its title, naming the upstream it came from.
@@ -71,3 +71,21 @@ flagging the markers that name no trigger as the ones that rot, is `ponytail-deb
 
 `ponytail-gain`'s honesty boundary is adopted as a rule rather than as text: a saving that has no measured
 baseline does not get printed as a number.
+
+## typesafe-ai/skills
+
+<https://github.com/typesafe-ai/skills> — MIT, `Copyright (c) 2026 TypeSafe AI`
+
+Read at `65a39f393687675ce170e6094757de20370365b9` (0.5.7).
+
+| Derived file | Upstream source |
+| --- | --- |
+| `skills/jev/SKILL.md` | `skills/typesafe-ai/SKILL.md` |
+
+This one is an expansion, not a distillation. The upstream skill teaches an application developer to build
+with TypeSafe. The local skill redirects the same model at a coding agent, which delegates routing, bulk
+triage, and diff verification to it.
+
+The rewrite keeps the primitive descriptions, the speculative fan-out pattern, the confidence-gated routing,
+and the pointer to the live docs. Everything else is new: the three references and `scripts/jev_cli.py` do
+not exist upstream. The local `LICENSE` records `MIT OR Apache-2.0`; upstream is MIT.

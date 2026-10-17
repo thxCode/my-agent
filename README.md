@@ -213,7 +213,7 @@ fraction of the upstream text: 143 KB of source became 21 KB, and the descriptio
 whether or not the skill runs went from 3.5 KB to 0.6 KB. Several merge more than one upstream.
 
 Every derived file names its upstream in a line under its title, and `CREDITS.md` records which commit each
-upstream was read at and what came from where. All three upstreams are MIT, as is this repository.
+upstream was read at and what came from where. All four upstreams are MIT, as is this repository.
 
 The cost of distilling is drift: a fork stops tracking the day it is written. `my-refine sync` is the
 counterweight — it compares each derived file against its upstream at the recorded commit, reports what

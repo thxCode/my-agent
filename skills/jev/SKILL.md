@@ -10,6 +10,9 @@ description: >-
 
 # jev — System One Decision Node & TypeSafe Integration
 
+Derived from [`typesafe-ai`](https://github.com/typesafe-ai/skills/tree/main/skills/typesafe-ai)
+(MIT, Copyright (c) 2026 TypeSafe AI); see `CREDITS.md`.
+
 Pairs any System Two coding agent with TypeSafe AI's **Jev** (`jev-latest` / `jev-1.13.0` / `jev-preview`
 `jev-1.14.0`), a **System One** model built for sub-second (~100 ms), calibrated, typed judgments (`choice`,
 `score`, `noul`, `box`) where output tokens are free and input costs $0.042/Mtok.
