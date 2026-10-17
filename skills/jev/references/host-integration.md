@@ -72,12 +72,15 @@ python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status           # Inspect 
   "review_diff": {
     "noul_threshold": 0.5,
     "score_threshold": 1.0,
-    "rules_file": ".claude/jev/lint-rules.json",
+    "rules_file": null,
     "long_context": false
   },
   "updated_at": "2026-10-16T00:00:00Z"
 }
 ```
+
+`review-diff` and `route` honor `enabled` and their `positions` flag. `batch` runs only as an explicit call, so
+`positions.batch` has no effect.
 
 ## 4. Optional Hook Wiring for Automatic Per-Turn Routing & Verification
 
@@ -104,5 +107,5 @@ Because `jev_cli.py route` and `jev_cli.py review-diff` automatically check `ena
 ## 5. Delegating Follow-Up Work to Subagents
 
 When `jev_cli.py` finishes pre-screening (Position 1 routing, Position 2 top-K filtering, or Position 3 diff/comment flagging) and the coding agent needs to dispatch workers:
-- Read `~/.agents/skills/my-workflow/references/agent-runtime.md` for the current host's native subagent adapter (Claude Code `Agent`, Codex subagents, Kimi/Qwen `Agent`/`Task`, OMP `task`, MiniMax `mcode` subagents, ZCode `Agent`/`TaskOutput`, Antigravity `invoke_subagent`, or Orca `orchestration`).
+- Read `~/.agents/skills/my-workflow/references/agent-runtime.md` for the current host's native subagent adapter.
 - Pass the file path of the `.claude/jev/*.json` output rather than pasting large JSON payloads into worker prompts (critical for MiniMax Code `mcode` single-line prompt submission and universal token hygiene).

@@ -1,8 +1,8 @@
 # Three Coding-Agent Playbooks (System 1 + System 2)
 
-Distilled from the System One + System Two coding-agent architecture: let **Jev** execute high-frequency, millisecond
-decisions (routing, bulk pre-screening, checklist verification) and reserve the **System Two coding agent** for deep
-reasoning, planning, and code generation.
+Derived from TypeSafe AI's published System One + System Two coding-agent architecture: let **Jev** execute
+high-frequency, millisecond decisions (routing, bulk pre-screening, checklist verification) and reserve the
+**System Two coding agent** for deep reasoning, planning, and code generation.
 
 ## Playbook 1 — Pre-Execution Routing (Save Tokens & Latency)
 
@@ -12,15 +12,15 @@ Instead of running every prompt on the most expensive flagship model, evaluate t
 map the result onto the portable capability classes defined in
 `~/.agents/skills/my-workflow/references/model-routing.md`:
 
-| Jev `capability_class` | Complexity Score | Typical Tasks | Action in Coding Agent |
+| `recommended_capability_class` | Complexity Score | Typical Tasks | Action in Coding Agent |
 | --- | --- | --- | --- |
 | `fast` | `< 0.8` | Locate a file path, convert text/JSON format, inspect function parameters, run a bounded test or mechanical edit | Dispatch a `fast` subagent/worker (`fast-worker` / `test-worker`) or keep reasoning effort minimal |
 | `balanced` | `0.8 – 2.0` | Implement a scoped feature, write unit tests, fix a localized bug, review a standard diff | Use the session's default `balanced` model and standard effort |
 | `strongest` | `> 2.0` or `confidence < 0.5` | Cross-package redesign, concurrency/race debugging, security/auth/billing changes, schema migrations | Escalate to the `strongest` capability class or higher reasoning effort |
 
-**Prompt cache discipline:** Respect `model-routing.md` — do not switch the primary session's model mid-turn if Doing
-so invalidates the host's prompt cache; apply the tier selection when spawning subagents/workers or at natural session
-boundaries.
+**Prompt cache discipline:** Respect `model-routing.md`. Do not switch the primary session's model mid-turn if
+doing so invalidates the host's prompt cache. Apply the tier selection when spawning subagents/workers, or at natural
+session boundaries.
 
 ### 1b. Two-Stage Skill & Tool Selection
 
@@ -28,8 +28,8 @@ When `~/.agents/skills` holds dozens or hundreds of skills, scanning every file 
 down startup.
 
 1. Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py route --prompt "<user request>" --skills-dir ~/.agents/skills`.
-2. Jev evaluates all skill descriptions in a single `Choice` call (supports up to 255 skills per `Choice`; if the
-   workspace exceeds 255 skills, split into two parallel `Choice` questions and merge by probability).
+2. Jev evaluates the skill descriptions in a single `Choice` call (up to 255 skills per `Choice`). When the
+   catalog is larger, split `--skills-dir` into subsets and merge the results by probability.
 3. Load only the top 1 to 3 returned `SKILL.md` files whose probability clears `--min-skill-prob`.
 
 ## Playbook 2 — Bulk Data Classification, Scoring & Triage

@@ -41,7 +41,7 @@ Source of truth: `https://docs.typesafe.ai` (index: `https://docs.typesafe.ai/ll
 - **Describe concrete situations in `score` levels:** Write observable criteria for each level rather than bare numbers
   (`["0", "1", "2"]`) or vague adverbs (`"moderately severe"`). Normalize multi-score combinations in code by dividing
   each score by `len(criteria) - 1`.
-- **Use contrastive structure for easily confused options:** Both `instructions` and `criteria` accept JSON objects:
+- **Use contrastive structure for easily confused options:** `instructions` and `criteria` accept JSON objects:
   ```json
   {
     "type": "choice",
@@ -68,7 +68,7 @@ Source of truth: `https://docs.typesafe.ai` (index: `https://docs.typesafe.ai/ll
 ## 3. Core Architectural Patterns
 
 1. **Speculative Fan-Out:** Pack all candidate questions (including branch-specific follow-ups) into a single API call.
-   Batching 13 questions in one call is ~11.5x cheaper and ~9.6x faster than serial calls, and code simply ignores
+   Batching 13 questions in one call is ~11.5x cheaper and ~9.6x faster than serial calls. Code simply ignores
    unused branch answers.
 2. **Confidence-Gated Routing:** Split behavior into three zones based on `confidence` (or `noul` thresholds):
    - **High confidence:** Act automatically in code.

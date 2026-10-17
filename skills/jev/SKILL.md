@@ -2,27 +2,25 @@
 name: jev
 description: >-
   Offload fast, calibrated System One decisions (routing, skill selection, bulk classification, rubric scoring,
-  semantic linting, and 100-question diff verification) to TypeSafe AI's Jev model via TYPESAFE_API_KEY, or build
-  TypeSafe API/SDK integrations in application code. Compatible across Claude Code, Codex, Kimi Code, Antigravity,
-  ZCode, MiniMax Code, Qwen Code, GitHub Copilot, and Oh-my-pi (OMP). Triggers on jev, typesafe, system one,
-  systemone, choice/score/noul/box primitives, model routing, skill routing, bulk classify/score, semantic linter,
+  semantic linting, 100-question diff verification) to TypeSafe AI's Jev model via TYPESAFE_API_KEY, or build
+  TypeSafe API/SDK integrations in application code. Triggers on jev, typesafe, system one, systemone,
+  choice/score/noul/box primitives, model routing, skill routing, bulk classify/score, semantic linter,
   100-question code review, jev on/off.
 ---
 
 # jev — System One Decision Node & TypeSafe Integration
 
-Pairs any System Two coding agent (Claude Code, Codex, Kimi Code, Antigravity, ZCode, MiniMax Code, Qwen Code,
-GitHub Copilot, Oh-my-pi) with TypeSafe AI's **Jev** (`jev-latest` / `jev-1.13.0` / `jev-preview` `jev-1.14.0`),
-a **System One** model built for sub-second (~100 ms), calibrated, typed judgments (`choice`, `score`, `noul`, `box`)
-where output tokens are free and input costs $0.042/Mtok.
+Pairs any System Two coding agent with TypeSafe AI's **Jev** (`jev-latest` / `jev-1.13.0` / `jev-preview`
+`jev-1.14.0`), a **System One** model built for sub-second (~100 ms), calibrated, typed judgments (`choice`,
+`score`, `noul`, `box`) where output tokens are free and input costs $0.042/Mtok.
 
 **Core rule:** When a workflow step selects from known options, scores against a rubric, or checks whether a
 condition holds, delegate that judgment to **Jev** (`scripts/jev_cli.py` or `POST https://api.typesafe.ai/v1/systemone`).
-Keep deep reasoning, architecture, and code or prose generation in the System Two coding agent.
+Keep deep reasoning, architecture, and code or prose generation in the System Two agent.
 
 - **API & Primitives Reference:** [references/api-and-primitives.md](references/api-and-primitives.md)
 - **Three Coding-Agent Playbooks (Routing, Bulk Triage, Verification):** [references/coding-agent-playbooks.md](references/coding-agent-playbooks.md)
-- **Multi-Agent Host Integration (9 Coding Agents & zsh Key Resolution):** [references/host-integration.md](references/host-integration.md)
+- **Host Integration (9 Hosts & zsh Key Resolution):** [references/host-integration.md](references/host-integration.md)
 
 ## 1. Environment & `TYPESAFE_API_KEY` Resolution (`zsh`)
 
@@ -39,11 +37,12 @@ that skip `~/.zshrc`.
 - **Health check:** Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py doctor` to confirm key resolution and
   connectivity against `GET https://api.typesafe.ai/v1/models`.
 
-## 2. Mode Switch (`jev on` | `jev off` | `jev status`)
+## 2. Mode Switch (`jev init` | `jev on` | `jev off` | `jev status`)
 
-Persist session-or-project reflex mode in `.claude/jev-mode.json` via `jev_cli.py mode`:
+Persist project or global reflex mode in `.claude/jev-mode.json` via `jev_cli.py mode`:
 
 ```bash
+python3 ~/.agents/skills/jev/scripts/jev_cli.py mode init     # Write the default config
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode on       # Enable System 1 pre-routing & verification
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode off      # Disable automatic Jev offloading (baseline comparison)
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status   # Check current mode and cumulative token usage
@@ -52,7 +51,7 @@ python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status   # Check current mo
 When mode is `on`, run **Position 1** before heavy task dispatch and **Position 3** before finalizing non-trivial
 code changes. Toggle `off` to A/B test token savings and output quality on representative tasks.
 
-## 3. Three Core Positions in Coding-Agent Workflows
+## 3. Three Positions in Coding Workflows
 
 Detailed templates and JSON schemas live in [references/coding-agent-playbooks.md](references/coding-agent-playbooks.md).
 
@@ -70,8 +69,9 @@ python3 ~/.agents/skills/jev/scripts/jev_cli.py route \
   (`fast`, `balanced`, `strongest` per `~/.agents/skills/my-workflow/references/model-routing.md`). Route mechanical
   lookups, format conversions, and simple edits to `fast`; standard coding and review to `balanced`; ambiguous
   architecture, security, or migrations to `strongest`.
-- **Skill selection:** Ranks all installed skills in `--skills-dir` by frontmatter `name` and `description` in one
-  request (~100 ms) and returns `top_skills`. Read only the selected `SKILL.md` files into context.
+- **Skill selection:** Ranks the skills in `--skills-dir` by frontmatter `name` and `description` in one request
+  (~100 ms) and returns `top_skills`. Read only the selected `SKILL.md` files into context. One `choice` question
+  holds at most 255 skills, so point `--skills-dir` at a subset when the catalog is larger.
 
 ### Position 2 — Bulk Data Classification, Scoring & Pre-Filtering
 
@@ -99,7 +99,7 @@ Close the coding feedback loop at near-zero cost before committing or opening a 
   ```bash
   python3 ~/.agents/skills/jev/scripts/jev_cli.py review-diff \
     --git-diff "HEAD" \
-    --rules-file custom-lint-rules.json \
+    --rules-file .claude/jev/lint-rules.json \
     --out .claude/jev/diff-review.json
   ```
   Checks plain-English semantic rules (function naming vs. side effects, secret/amount/PII logging, unintended shared

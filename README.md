@@ -92,7 +92,7 @@ includes its documented `my-spec` stage chain; an implicit match does not.
 - **`my-refine`** — audit and prune this prompt/skill family itself.
 
 Alongside the lifecycle, `skills/` also carries standalone skills that no stage owns — `auto-research`,
-`crawl4ai-search`, `crosscheck`, and `address-pr-review` — plus the distilled skills below and whatever a
+`crawl4ai-search`, `crosscheck`, `address-pr-review`, and `jev` — plus the distilled skills below and whatever a
 tool such as Orca or GitNexus installs into the shared root.
 
 The shared references under [`skills/my-workflow/references/`](skills/my-workflow/references/) hold reusable policy. In
