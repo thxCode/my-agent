@@ -19,6 +19,8 @@
 !skills/crosscheck/**
 !skills/my-*/
 !skills/my-*/**
+!skills/jev/
+!skills/jev/**
 
 # distilled from upstream repositories; provenance in each file and in CREDITS.md
 !skills/api-and-interface-design/
@@ -44,3 +46,6 @@
 
 # macOS
 .DS_Store
+
+# Python
+__pycache__/
