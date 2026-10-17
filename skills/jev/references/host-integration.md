@@ -20,17 +20,23 @@ All hosts share `~/.agents/skills/jev/SKILL.md` (either directly or via the syml
 | **GitHub Copilot** | `~/.agents/skills/jev` / `.github/skills/jev` / `.claude/skills/jev` | `/jev <task>` (Agent mode / CLI) | `"use the jev skill (~/.agents/skills/jev/SKILL.md) to ..."` |
 | **Oh-my-pi (`omp`)** | `~/.agents/skills/jev` (native agents skill provider) | `/skill:jev <task>` | `"use the jev skill to ..."` |
 
-## 2. Ensuring `TYPESAFE_API_KEY` Works Across All Host Subshells
+## 2. Ensuring `TYPESAFE_API_KEY` & SSL Certificates Work Across All Host Subshells
 
 Different coding agents launch shell commands differently:
 - **Claude Code, Codex, Kimi Code, Qwen Code, OMP** typically run `/bin/zsh -c` or `/bin/sh -c` (non-interactive, non-login), which reads `~/.zshenv` (for `zsh`) but skips `~/.zshrc`.
 - **Antigravity, ZCode, MiniMax Code, GitHub Copilot** may sanitize or inherit only the parent daemon environment.
+- **macOS `Python.framework` SSL root certificate quirk:** Official macOS Python builds look for `/Library/Frameworks/Python.framework/Versions/<ver>/etc/openssl/cert.pem`, which is absent unless linked (`x509_ca == 0`). A stale `SSL_CERT_FILE` that names a missing file causes the same symptom.
 
-To guarantee zero-friction authentication in every agent:
-1. Always prefer invoking `~/.agents/skills/jev/scripts/jev_cli.py`, which checks `os.environ["TYPESAFE_API_KEY"]` first and automatically falls back to `zsh -ic` and `zsh -lc` to extract `TYPESAFE_API_KEY` from `~/.zshrc` or `~/.zshenv`.
-2. When running user application code (`pytest`, `node`, `uv run`) that reads `TYPESAFE_API_KEY` directly from `os.environ`, wrap the command if the current subshell lacks the variable:
+To guarantee zero-friction authentication and TLS verification in every agent:
+1. **Built-in auto-resolution in `jev_cli.py`:** It resolves `TYPESAFE_API_KEY` from `os.environ` -> `zsh -ic` -> `zsh -lc`. It builds an SSL context from the interpreter default when no `ssl_cert_file` is configured and that default holds roots, then from `ssl_cert_file` in `.claude/jev-mode.json`, `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE` / `CURL_CA_BUNDLE`, `certifi`, or common system bundles. The context is cached per process.
+2. **When running external Python SDK scripts (`typesafe-sdk`, `httpx`, `urllib`):** Those do not use `jev_cli.py`'s resolution. Export both variables in `~/.zshenv`, which every `zsh` subshell loads, or link Python's OpenSSL `cert.pem` once:
    ```bash
-   TYPESAFE_API_KEY="${TYPESAFE_API_KEY:-$(zsh -ic 'printf "%s" "$TYPESAFE_API_KEY"' 2>/dev/null)}" <your-command>
+   # Option A: One-time symlink for macOS Python.framework
+   ln -sf "$(python3 -c 'import certifi; print(certifi.where())')" \
+     "$(python3 -c 'import ssl; print(ssl.get_default_verify_paths().openssl_cafile)')"
+
+   # Option B: Export in ~/.zshenv so all non-interactive Coding Agent subshells inherit it
+   export SSL_CERT_FILE="/etc/ssl/cert.pem"
    ```
 3. Never echo or log `$TYPESAFE_API_KEY` in terminal output, commit messages, or skill artifacts.
 
@@ -55,6 +61,7 @@ python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status           # Inspect 
 {
   "enabled": true,
   "model": "jev-latest",
+  "ssl_cert_file": null,
   "positions": {
     "route": true,
     "batch": true,

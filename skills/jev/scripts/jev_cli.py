@@ -15,6 +15,7 @@ import csv
 import json
 import os
 import re
+import ssl
 import subprocess
 import sys
 import time
@@ -28,9 +29,18 @@ DEFAULT_MODEL = "jev-latest"
 MODE_REL_PATH = Path(".claude/jev-mode.json")
 GLOBAL_MODE_PATH = Path("~/.claude/jev-mode.json").expanduser()
 
+CANDIDATE_CA_BUNDLES: tuple[str, ...] = (
+    "/etc/ssl/cert.pem",
+    "/opt/homebrew/etc/ca-certificates/cert.pem",
+    "/usr/local/etc/ca-certificates/cert.pem",
+    "/etc/ssl/certs/ca-certificates.crt",
+    "/etc/pki/tls/certs/ca-bundle.crt",
+)
+
 DEFAULT_MODE_CONFIG: dict[str, Any] = {
     "enabled": True,
     "model": DEFAULT_MODEL,
+    "ssl_cert_file": None,
     "positions": {
         "route": True,
         "batch": True,
@@ -72,6 +82,66 @@ def load_mode_config(explicit_path: str | None = None) -> tuple[dict[str, Any], 
         except Exception:
             pass
     return cfg, target
+
+
+_SSL_CONTEXT_CACHE: dict[str, tuple[ssl.SSLContext, str]] = {}
+
+
+def resolve_ssl_context(configured_cafile: str | None = None) -> tuple[ssl.SSLContext, str]:
+    """Build an SSLContext that still verifies when the interpreter has no root store.
+
+    A macOS Python.framework build can ship without its cert.pem link, and a stale
+    SSL_CERT_FILE leaves the default context with zero roots. Both fail every request
+    with CERTIFICATE_VERIFY_FAILED. Building a context costs about 8 ms, so the result
+    is cached per configuration for the lifetime of the process.
+    """
+    cache_key = str(configured_cafile or "")
+    if cache_key in _SSL_CONTEXT_CACHE:
+        return _SSL_CONTEXT_CACHE[cache_key]
+
+    candidates: list[tuple[str, str]] = []
+    if configured_cafile:
+        candidates.append((str(Path(configured_cafile).expanduser()), "jev_mode_config"))
+    for env_var in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"):
+        value = os.environ.get(env_var, "").strip()
+        if value:
+            candidates.append((str(Path(value).expanduser()), f"env:{env_var}"))
+    try:
+        import certifi  # type: ignore
+        candidates.append((certifi.where(), "python:certifi"))
+    except Exception:
+        pass
+    for path_str in CANDIDATE_CA_BUNDLES:
+        candidates.append((path_str, f"system:{path_str}"))
+
+    # Prefer the interpreter default when it carries roots: SSL_CERT_FILE is already
+    # applied there, so this covers the healthy case and the configured-env case alike.
+    if not configured_cafile:
+        try:
+            default_ctx = ssl.create_default_context()
+        except Exception:
+            default_ctx = None
+        if default_ctx is not None and default_ctx.cert_store_stats().get("x509_ca", 0) > 0:
+            _SSL_CONTEXT_CACHE[cache_key] = (default_ctx, "openssl_default")
+            return _SSL_CONTEXT_CACHE[cache_key]
+
+    for ca_path, source in candidates:
+        if not os.path.isfile(ca_path):
+            continue
+        try:
+            ctx = ssl.create_default_context(cafile=ca_path)
+        except Exception:
+            continue
+        if ctx.cert_store_stats().get("x509_ca", 0) > 0:
+            _SSL_CONTEXT_CACHE[cache_key] = (ctx, f"{source} ({ca_path})")
+            return _SSL_CONTEXT_CACHE[cache_key]
+
+    # No bundle found. Return the empty default so the request fails with the real
+    # certificate error rather than a misleading success.
+    fallback = ssl.create_default_context()
+    _SSL_CONTEXT_CACHE[cache_key] = (fallback, "none")
+    return _SSL_CONTEXT_CACHE[cache_key]
+
 
 DEFAULT_DIFF_QUESTIONS: dict[str, dict[str, Any]] = {
     "touches_shared_or_public_api": {
@@ -144,7 +214,6 @@ def resolve_api_key() -> tuple[str, str]:
             )
             candidate = proc.stdout.strip()
             if candidate:
-                # If interactive zsh printed extra banner lines before printf, take the last token matching key shape
                 lines = [ln.strip() for ln in candidate.splitlines() if ln.strip()]
                 key_val = lines[-1] if lines else candidate
                 if key_val:
@@ -166,13 +235,14 @@ def http_request(
     extra_headers: dict[str, str] | None = None,
     max_retries: int = 4,
     timeout: int = 60,
+    ssl_cert_file: str | None = None,
 ) -> dict[str, Any]:
-    """Send an HTTP request to TypeSafe API with exponential backoff on 429 and 529."""
+    """Send an HTTP request to TypeSafe API with automatic CA bundle resolution and exponential backoff."""
     url = f"{API_BASE}{path}"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Accept": "application/json",
-        "User-Agent": "jev-universal-skill/1.0",
+        "User-Agent": "jev-universal-skill/1.1",
     }
     if extra_headers:
         headers.update(extra_headers)
@@ -182,11 +252,13 @@ def http_request(
         headers["Content-Type"] = "application/json"
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
+    ssl_ctx, _ = resolve_ssl_context(ssl_cert_file)
+
     delay = 0.8
     for attempt in range(max_retries + 1):
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
                 raw = resp.read().decode("utf-8")
                 return json.loads(raw) if raw else {}
         except urllib.error.HTTPError as exc:
@@ -258,21 +330,42 @@ def load_json_arg(raw_or_path: str | None, file_path: str | None) -> Any:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
+    mode_cfg, _ = load_mode_config()
+    ssl_ctx, ssl_source = resolve_ssl_context(mode_cfg.get("ssl_cert_file"))
+    ca_count = ssl_ctx.cert_store_stats().get("x509_ca", 0)
     try:
         api_key, key_source = resolve_api_key()
     except RuntimeError as err:
-        print(json.dumps({"ok": False, "error": str(err)}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "ssl_source": ssl_source,
+                    "ssl_ca_count": ca_count,
+                    "error": str(err),
+                },
+                indent=2,
+            )
+        )
         return 1
 
     masked = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) >= 10 else "***"
     try:
-        models_resp = http_request("GET", "/models", api_key=api_key, timeout=15)
+        models_resp = http_request(
+            "GET",
+            "/models",
+            api_key=api_key,
+            timeout=15,
+            ssl_cert_file=mode_cfg.get("ssl_cert_file"),
+        )
         print(
             json.dumps(
                 {
                     "ok": True,
                     "key_source": key_source,
                     "key_masked": masked,
+                    "ssl_source": ssl_source,
+                    "ssl_ca_count": ca_count,
                     "endpoint": f"{API_BASE}/systemone",
                     "models": models_resp.get("models", []),
                 },
@@ -288,6 +381,8 @@ def cmd_doctor(args: argparse.Namespace) -> int:
                     "ok": False,
                     "key_source": key_source,
                     "key_masked": masked,
+                    "ssl_source": ssl_source,
+                    "ssl_ca_count": ca_count,
                     "error": str(err),
                 },
                 indent=2,
@@ -312,7 +407,20 @@ def cmd_mode(args: argparse.Namespace) -> int:
         mode_file.parent.mkdir(parents=True, exist_ok=True)
         mode_file.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    print(json.dumps({"mode_file": str(mode_file), "exists": mode_file.exists(), **current}, indent=2, ensure_ascii=False))
+    ssl_ctx, ssl_source = resolve_ssl_context(current.get("ssl_cert_file"))
+    print(
+        json.dumps(
+            {
+                "mode_file": str(mode_file),
+                "exists": mode_file.exists(),
+                "resolved_ssl_source": ssl_source,
+                "resolved_ssl_ca_count": ssl_ctx.cert_store_stats().get("x509_ca", 0),
+                **current,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 
@@ -358,7 +466,14 @@ def cmd_eval(args: argparse.Namespace) -> int:
         }
 
     t0 = time.perf_counter()
-    resp = http_request("POST", "/systemone", api_key=api_key, payload=payload, extra_headers=extra_headers)
+    resp = http_request(
+        "POST",
+        "/systemone",
+        api_key=api_key,
+        payload=payload,
+        extra_headers=extra_headers,
+        ssl_cert_file=mode_cfg.get("ssl_cert_file"),
+    )
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
     resp["_latency_ms"] = elapsed_ms
 
@@ -455,6 +570,7 @@ def cmd_route(args: argparse.Namespace) -> int:
             "state": {"task_prompt": args.prompt},
             "questions": questions,
         },
+        ssl_cert_file=mode_cfg.get("ssl_cert_file"),
     )
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
     answers = resp.get("answers", {})
@@ -494,6 +610,7 @@ def cmd_batch(args: argparse.Namespace) -> int:
     model_name = args.model or mode_cfg.get("model", DEFAULT_MODEL)
     concurrency = args.concurrency if args.concurrency is not None else int(batch_cfg.get("concurrency", 16))
     top_k = args.top_k if args.top_k is not None else int(batch_cfg.get("top_k", 10))
+    ssl_cert_file = mode_cfg.get("ssl_cert_file")
 
     api_key, _ = resolve_api_key()
     questions = load_json_arg(args.questions, args.questions_file)
@@ -538,6 +655,7 @@ def cmd_batch(args: argparse.Namespace) -> int:
                 "state": item["state"],
                 "questions": questions,
             },
+            ssl_cert_file=ssl_cert_file,
         )
         flat_answers: dict[str, Any] = {}
         for qid, ans in resp.get("answers", {}).items():
@@ -651,6 +769,7 @@ def cmd_review_diff(args: argparse.Namespace) -> int:
             "questions": questions,
         },
         extra_headers=extra_headers,
+        ssl_cert_file=mode_cfg.get("ssl_cert_file"),
     )
     elapsed_ms = round((time.perf_counter() - t0) * 1000, 1)
 
@@ -712,7 +831,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model", default=None, help="Model ID or alias (default: from .claude/jev-mode.json or jev-latest)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("doctor", help="Verify TYPESAFE_API_KEY resolution from env/zsh and test API connectivity.")
+    sub.add_parser("doctor", help="Verify TYPESAFE_API_KEY resolution, SSL CA bundle, and API connectivity.")
 
     p_mode = sub.add_parser("mode", help="Initialize, toggle, or inspect Jev mode (init | on | off | status).")
     p_mode.add_argument("action", choices=["init", "on", "off", "status"])
