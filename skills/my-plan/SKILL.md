@@ -5,6 +5,9 @@ description: Turn a spec into a dependency-aware task plan and test plan; do not
 
 # my-plan
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Refine the plan inside a spec: **the user's current request**
 
 This skill **only ever writes back the one spec file** — no other edits. Stay read-only otherwise.

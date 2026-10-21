@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # my-debug
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Diagnose and plan a fix for: **the user's current request**
 
 Like `my-plan`, this skill **only writes one artifact** — a debug doc under `.claude/debugs/` — then hands to

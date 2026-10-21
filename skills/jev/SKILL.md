@@ -18,8 +18,10 @@ Pairs any System Two coding agent with TypeSafe AI's **Jev** (`jev-latest` / `je
 `score`, `noul`, `box`) where output tokens are free and input costs $0.042/Mtok.
 
 **Core rule:** When a workflow step selects from known options, scores against a rubric, or checks whether a
-condition holds, delegate that judgment to **Jev** (`scripts/jev_cli.py` or `POST https://api.typesafe.ai/v1/systemone`).
+semantic condition holds, delegate that judgment to **Jev** (`scripts/jev_cli.py` or `POST https://api.typesafe.ai/v1/systemone`).
 Keep deep reasoning, architecture, and code or prose generation in the System Two agent.
+Use deterministic tools for exact facts. Honor user choices, disclosure restrictions, and `jev off` before automatic calls.
+For `my-*` and `crosscheck`, apply [workflow decision routing](../my-workflow/references/decision-routing.md).
 
 - **API & Primitives Reference:** [references/api-and-primitives.md](references/api-and-primitives.md)
 - **Three Coding-Agent Playbooks (Routing, Bulk Triage, Verification):** [references/coding-agent-playbooks.md](references/coding-agent-playbooks.md)
@@ -60,6 +62,7 @@ python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status   # Check current mo
 
 When mode is `on`, run **Position 1** before heavy task dispatch and **Position 3** before finalizing non-trivial
 code changes. Toggle `off` to A/B test token savings and output quality on representative tasks.
+Automatic callers must inspect mode before `eval` or `batch`; those commands do not enforce the mode switches themselves.
 
 ## 3. Three Positions in Coding Workflows
 
@@ -108,13 +111,14 @@ Close the coding feedback loop at near-zero cost before committing or opening a 
   checks into a **single parallel API call** (Speculative Fan-Out) against the current git diff:
   ```bash
   python3 ~/.agents/skills/jev/scripts/jev_cli.py review-diff \
-    --git-diff "HEAD" \
+    --diff-file "<scratch>/scope.diff" \
     --rules-file .claude/jev/lint-rules.json \
     --out .claude/jev/diff-review.json
   ```
   Checks plain-English semantic rules (function naming vs. side effects, secret/amount/PII logging, unintended shared
   module edits, weakened unit tests, swallowed errors, magic numbers). Escalate **only** high-probability findings
   (`noul >= threshold` or `score >= threshold`) to the System Two coding agent for deep inspection and repair.
+  Export the actual task or branch scope first. After committing, `git diff HEAD` can be empty while the branch contains changes.
 - **Codebase-Wide Sweep:** Extract all comments or functions into a `.jsonl` file, run `jev_cli.py batch` to flag
   noise/stale comments or code smells for cents, then dispatch a `fast` worker to clean up only the flagged locations.
 - **Calibration loop:** When the coding agent spots a false positive or false negative in Jev's output, tighten the

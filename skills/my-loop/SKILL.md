@@ -5,6 +5,9 @@ description: Run a long-term engineering program from a report or existing specs
 
 # my-loop
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Use this skill when one report, plan, or set of specs will take several implementation and review cycles, and a
 later coordinator must be able to resume the work. A single feature or bug uses the relevant `my-*` stage.
 The coordinator owns the program; each spec worker owns only its assigned branch and task files.

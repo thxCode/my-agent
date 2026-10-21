@@ -5,6 +5,9 @@ description: Route software work to the appropriate my-* workflow stage or speci
 
 # my-workflow
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Use this skill when the user asks to use the personal workflow, names a `my-*` stage, or asks for an end-to-end
 engineering workflow rather than one isolated action.
 

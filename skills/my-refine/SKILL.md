@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # my-refine
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Refine the prompt asset: **the user's current request**
 
 Two jobs, in order: find **conflicts** (two places that disagree, or a rule sitting somewhere it can never fire

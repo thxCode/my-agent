@@ -10,6 +10,9 @@ or a reason to hard-code another vendor's model into the workflow.
 
 ## 1. Gate the spend
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md).
+Check disclosure restrictions before classifying or dispatching; an embargo disables external Jev calls and cross-checks.
+
 Default to skip. Run one cross-check only when at least one condition holds:
 
 - the change crosses packages, components, or a public interface;
@@ -19,6 +22,11 @@ Default to skip. Run one cross-check only when at least one condition holds:
 - the lead has low confidence or conflicting evidence; or
 - the user explicitly requested an independent review.
 
+If a trigger is already established, proceed without classification. Jev cannot veto an explicit review request or confirmed trigger.
+For uncertain novelty, complexity, or risk, use one Jev `choice` over `run`, `skip`, and `needs_lead`.
+Supply raw evidence and the trigger list above. Accept `run` or `skip` only at `confidence >= 0.8`.
+Otherwise, or if Jev is off or unavailable, the lead applies this same gate. Reuse the result while evidence is unchanged.
+
 Skip local, well-patterned, reversible work unless the user requested review. Do not repeat a cross-check over
 unchanged evidence. Use at most one turn per workflow stage; a deliberately requested diff review may use one
 bounded reviewer per isolated heavy task. `auto-research` may run one consolidated pass per new findings batch
@@ -26,16 +34,23 @@ and one final report pass under its own cost gate. Never make concurrent calls t
 
 ## 2. Dispatch through `my-crew`
 
-Apply `my-crew`'s review lane. Default to the current agent tool and its current model in an independent review
-context. Honor a user-specified tool, model, or named subagent. Do not substitute another target when the
-requested one is unavailable; report that and continue without blocking ordinary work.
+Before the first dispatch in each workflow stage, ask which coding agent should perform the review.
+Offer only tools whose launch route is available, plus the choice to skip review. Do not preselect the current tool implicitly.
+If the user already selected a tool for this stage, use it without asking again.
+Reuse that choice for the stage's later reviews. At the next stage, ask again unless the user selected it for later stages too.
+Keep the choice in the existing checkpoint across compaction; if it is lost, ask rather than infer it.
+
+Apply `my-crew`'s review lane with that selection. Use the selected tool's configured default model unless the user specified one.
+Resolve and report the actual model before dispatch, including when the selected tool is the lead's tool.
+Honor a user-specified model or named subagent. If the selection or its actual model cannot be resolved or launched, report that.
+Do not silently substitute a tool, model, or named subagent. Return without blocking ordinary work.
 
 When Orca orchestration is reachable, `my-crew` uses a supervised read-only Task in a separate agent window.
-Otherwise it uses the current host's native read-only subagent. The native route has an independent context but
-may not have a separate terminal window. Do not use an installed bridge plugin as a review route.
+Otherwise it uses the current host's native read-only subagent only if that route can honor the selected tool and model.
+The native route has an independent context but may not have a separate terminal window.
+Do not use an installed bridge plugin as a review route.
 
-Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before dispatch. Apply `model-routing.md`:
-inherit defaults unless the user selected a model or a capability change is justified.
+Read `~/.agents/skills/my-workflow/references/agent-runtime.md` before dispatch. Apply `model-routing.md`'s reviewer rules.
 
 ## 3. Select the review shape
 

@@ -100,10 +100,12 @@ To audit a legacy repository for stale/misleading comments, dead code, duplicate
 ### 3c. 100-Question PR Checklist Review (Speculative Fan-Out)
 
 Before opening a PR or completing `my-build` / `my-ship`:
-1. Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py review-diff --git-diff HEAD`.
+1. Apply `my-workflow/references/decision-routing.md`, including its mode and disclosure checks.
+   Export the task's working-copy diff or `git diff <base>...HEAD` to a non-empty scratch file.
+   Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py review-diff --diff-file "<scratch>/scope.diff"`.
 2. Jev evaluates the entire checklist in one ~100 ms call.
-3. If `flagged_for_system2_review` is empty, proceed. If specific checks fire, the coding agent inspects only those
-   exact failure modes in the diff and fixes them before final verification.
+3. Inspect flagged candidates against source under the workflow's existing approval rules.
+   An empty findings list does not replace tests or required reviews. An empty input diff is a skip, not a pass.
 
 ### 3d. System Two Calibrating System One
 

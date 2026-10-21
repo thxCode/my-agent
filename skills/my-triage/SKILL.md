@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # my-triage
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Triage the report: **the user's current request**
 
 For the report you **cannot reproduce**. The failure lives on the reporter's hardware or cluster, the issue

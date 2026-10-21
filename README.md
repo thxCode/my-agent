@@ -101,13 +101,20 @@ signals, `multi-window.md` selects a communication carrier, and `model-routing.m
 portable across vendors. `prompt-hygiene.md` keeps reusable prefixes stable, removes legacy prompt patches, and
 calibrates effort against evidence.
 
+Every `my-*` entry applies `decision-routing.md` to bounded judgments through `jev`.
+It respects Jev mode and disclosure restrictions, and falls back to the lead when results are uncertain or unavailable.
+`my-build` and `my-ship` use `git-signoff.md` to verify commit trailers after creation and history changes.
+`my-ship` does not refresh GitNexus indexes at completion, including in worktrees.
+
 ## Multi-agent boundary
 
 Use the smallest coordination surface that preserves the required state:
 
 - Same-session, bounded exploration/review/test work → the current host's native subagents.
 - Adversarial review → `crosscheck` gates it; `my-crew` dispatches through Orca when hosted, otherwise through
-  the current host's native read-only subagent.
+  the current host's native read-only subagent if it supports the selected tool and model.
+  Ask for the coding agent at the first review in each stage, unless already specified.
+  Use the selected tool's configured default model unless the user selected a model; report the actual model before launch.
 - Supervised workers, a Task DAG, cross-agent coordination, ask/reply, or completion tracking → Orca
   `orchestration`.
 - Full ownership transfer to another window/worktree → Orca `orca-cli` handoff.
@@ -122,8 +129,8 @@ Orca owns all Run/Task/Dispatch provenance. A workflow must load `orca skills ge
 `orca skills get orca-cli` before issuing Orca commands, so command syntax remains matched to the installed
 runtime rather than copied into these skills.
 
-The workflow never hard-codes provider model names, aliases, or vendor-specific switch commands. It inherits the
-current model and, only when justified, recommends a portable capability class: `fast`,
+The workflow never hard-codes provider model names, aliases, or vendor-specific switch commands. The lead inherits the
+current session model and, only when justified, recommends a portable capability class: `fast`,
 `balanced`, or `strongest`. Where the host caches prompt prefixes, it also avoids changing model or effort in
 the middle of a live session unless the current capability is insufficient.
 

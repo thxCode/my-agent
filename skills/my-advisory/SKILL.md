@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # my-advisory
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Address the security report: **the user's current request**
 
 A vulnerability report is an ordinary bug wearing a second job. The technical half is already covered, and this
@@ -28,6 +31,7 @@ find. `my-spec` sets the precedent — name the artifact, be the entry to the ch
 - **Under embargo, nothing about the vulnerability leaves this machine.** Any external-provider cross-check
   sends the diff outside the embargo boundary, so `crosscheck` is **off** for every lane of the run — say so the
   first time a lane would have offered it, and stop offering it.
+  Jev is also **off** throughout the embargoed run, including routing, classification, and downstream diff screening.
 - **Confirm the exact text before it leaves the machine** — the advisory body, the branch name, the commit
   message, the PR title and body, the tag, the reporter email, the publish. This skill drafts, the user
   approves, then it runs.

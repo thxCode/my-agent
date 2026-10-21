@@ -5,6 +5,9 @@ description: Implement an approved spec or debug plan with TDD and focused commi
 
 # my-build
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Build the target: **the user's current request**
 
 Implement the **task list**. Output must conform to the target's **Code Style** and **Boundaries**, applicable
@@ -148,6 +151,9 @@ Do **one** pending task from the task list:
 
 ## Phase 4 — Review & impact analysis
 
+Apply `decision-routing.md`: use Jev for uncertain review depth and screen this task's actual diff before committing.
+Confirmed heavy-review triggers below remain mandatory. Jev screening does not replace either review path.
+
 Depth matches the task's risk:
 
 1. **Routine → inline self-review** on four axes: correctness (meets acceptance, edge cases), readability,
@@ -171,7 +177,9 @@ Depth matches the task's risk:
      tasks remain, `Built` when this was the last.
    - **Stage:** stage only this task's files. Stage the target edit **only if committed (`specs/`)**; a **local**
      target (`.claude/specs/` or `.claude/debugs/`) is updated on disk but **never staged**.
-   - **Commit with `-s`** (let `-s` append `Signed-off-by:`; never hand-write it):
+   - **Commit with `--signoff`** (let Git append `Signed-off-by:`; never hand-write it).
+     Apply [commit signoff](../my-workflow/references/git-signoff.md), including in Team mode.
+     After creating the commit, run its `new HEAD` check before continuing:
 
      ```
      <type>(optional scope): <title in lowercase>

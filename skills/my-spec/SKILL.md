@@ -5,6 +5,9 @@ description: Write a durable spec for a feature, tracked bug, or GitHub issue be
 
 # my-spec
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Start spec-driven development for: **the user's current request**
 
 Work the phases **in order** — each gates the next, no skipping ahead. Ask the user only when the judgment is

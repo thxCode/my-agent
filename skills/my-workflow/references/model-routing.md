@@ -37,9 +37,11 @@ criteria. Do not treat maximum effort as a universal quality setting.
 
 ## Workers
 
-Native subagents inherit the parent model by default. Use a cheaper/faster worker only for a narrow role whose
-contract removes design judgment. Orca worker creation chooses the agent provider and placement; for a
-`crosscheck` review using the lead's tool, preserve its current model through that tool's documented launch
-option when its configured default differs. A user-selected reviewer model takes precedence; another selected
-tool uses its own configured default unless the user also selected a model. For other Orca workers, model
-choice is resolved by the provider's current configuration, not by the shared Task spec.
+For ordinary native workers, inherit the parent model by default. Use a cheaper/faster worker only for a narrow role whose
+contract removes design judgment. Jev capability recommendations follow these rules; they do not authorize model changes or delegation.
+
+For `crosscheck`, ask for the coding agent under its per-stage selection rule.
+Use that tool's configured default model unless the user selected a model, including when using the lead's tool.
+Resolve and report the actual model before dispatch. A native worker's inherited model is valid only if it matches that selection.
+If the model cannot be resolved or the launch route cannot honor it, report the limitation without substituting another model.
+For other Orca workers, model choice follows the provider's current configuration, not the shared Task spec.

@@ -5,6 +5,9 @@ description: Transfer complete ownership of work to an Orca agent or worktree.
 
 # my-handoff
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Hand the user's task to another agent and stop working it. This is ownership transfer, not a cross-check and not
 a supervised crew.
 

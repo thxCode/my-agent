@@ -5,6 +5,9 @@ description: Prepare a completed branch for validation, documentation, and pull 
 
 # my-ship
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Finalize and ship the current branch: **the user's current request**
 
 Tidy up after the build: validate end-to-end, keep the suite green, tidy the branch history, resync the
@@ -68,12 +71,13 @@ browser-drivable UI (`browser-testing`):
 
 ## Phase 3 — Overview (only if an overview skill is available)
 
-1. Judge whether the build made the overview stale.
+1. Use Jev to screen whether the build made the overview stale, per `decision-routing.md`; verify candidates against source.
 2. If so, **confirm with the user**, then update it to reflect reality.
 
 ## Phase 4 — Docs & ADRs
 
-Is the change **architecturally significant** (new/changed public API, new dependency, altered data flow)?
+Use Jev to screen architectural significance (new/changed public API, new dependency, altered data flow), per `decision-routing.md`.
+Check the evidence before choosing the documentation path:
 - **Yes** → `documentation-and-adrs` to identify and complete the doc/ADR updates.
 - **No** → quick inline check: did this make any doc stale? Update it if so; else say so and move on. No ADR.
 
@@ -86,6 +90,10 @@ Spot-check findings against source (per `crosscheck`); **STOP and ask the user w
 fold accepted fixes in **now**, so step 5's history-tidy squashes them into their logical commit.
 Nothing warranted (de-dup skip, no changes, or neither tool available) → say so and continue.
 
+Screen the actual branch diff with Jev per `decision-routing.md`; reuse an unchanged build result.
+Inspect flagged checks against source under the existing finding and fix rules.
+Apply [commit signoff](../my-workflow/references/git-signoff.md) for every commit and history change below.
+
 1. **Any code changed in Phases 2–4 → re-run the full suite** (green before committing).
 2. **Mark the target's terminal state — target-driven only, before any PR exists** (write in **English**):
    - Advance `Status:` (carried from `my-build`'s `Built`) to `Shipped`; add the line if a legacy target lacks it.
@@ -95,12 +103,15 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
 
    **No target → skip.**
 3. Present everything changed (target if any, tests, overview, docs) for **review**.
-4. On confirmation, **commit** the finalization changes (group logically; stage only what you changed;
-   descriptive messages). Stage the `Status: Shipped` edit **only if the target is committed (`specs/`)**.
+4. On confirmation, **commit with `--signoff`** the finalization changes (group logically; stage only what you changed;
+   descriptive messages). Run `git-signoff.md`'s `new HEAD` check after each commit.
+   Stage the `Status: Shipped` edit **only if the target is committed (`specs/`)**.
    **Nothing stageable → skip the commit and say so.**
 5. **Tidy the branch history — evaluate on every ship, before pushing.** A build lands one commit per task; ship
    adds finalization commits. Fold the *noise* so the PR reads as a clean, linear story:
    - Inspect first: `git log --oneline <base>..HEAD`.
+     Run `git-signoff.md`'s history check on `<base>..HEAD`; include missing signoffs in the proposed rewrite.
+     Use Jev to suggest logical fold candidates from the commit log and diff. Verify ownership against Git history.
    - **Fold noise into its logical owner**, tidying messages — WIP / fixup / typo / ship micro-commits belong
      squashed into the commit they fix. **Preserve the per-task narrative** — do **not** flatten the whole branch
      into one commit (that destroys the story `my-build` recorded). Target-driven → also check the target reads
@@ -109,11 +120,15 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
      (interactive rebase is unavailable here):
      ```bash
      # single commit, or all fixes belong to the tip:
-     git add -A && git commit --amend --no-edit
+     git add <task-files> && git commit --amend --no-edit --signoff
      # fixes belong to specific earlier commits:
-     git commit --fixup=<target-sha> -- <files>
-     GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+     git commit --signoff --fixup=<target-sha> -- <files>
+     GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --signoff <base>
+     # only missing signoffs, with no other history changes:
+     git rebase --force-rebase --signoff <base>
      ```
+     These rebase examples assume linear history. If merges exist, preserve their topology per `git-signoff.md`.
+     Verify amend and fixup commits with `new HEAD`; after rebasing, verify each rewritten commit with `new <sha>`.
    - Use `git blame <file>` / `git log --oneline -- <file>` to find which commit a fix belongs to.
    - **Normalize task order — only when the `Task N of` trailers aren't ascending.** A parallel (`team`) build
      commits in *completion* order, so the log can read `Task 1`, `Task 3`, `Task 2`. Every ordering is valid
@@ -125,12 +140,15 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
        n=$(git log -1 --format=%B "$h" | sed -n 's/^Task \([0-9]*\) of .*/\1/p')
        echo "${n:-9999} pick $h $(git log -1 --format=%s "$h")"
      done | sort -n -s | cut -d' ' -f2- > "$TODO"
-     GIT_SEQUENCE_EDITOR="cp $TODO" git rebase -i <base>
+     GIT_SEQUENCE_EDITOR="cp $TODO" git rebase -i --signoff <base>
      ```
      Commits with no trailer (ship's own finalization commits) sort last, keeping their relative order.
      **A conflict here means `Owns:` overlapped and the tasks were never truly independent** — `git rebase
      --abort`, keep completion order, and surface it: that overlap is a worse finding than the ordering.
+   - After every history change, repeat the signoff checks on the resulting commit objects.
 6. **Ask whether to push the branch and open a PR.** If yes, push and create it.
+   - Before any push, require a clean `git-signoff.md` history check on `<base>..HEAD`.
+     Missing signoffs return to step 5's proposed repair and approval; do not push until repaired and checked.
    - **PR body — write to the repo's PR template when it has one.** Find it:
      ```bash
      git ls-files | grep -i pull_request_template
@@ -160,9 +178,6 @@ Nothing warranted (de-dup skip, no changes, or neither tool available) → say s
      `git fetch origin <branch>`, then `git rev-list --left-right --oneline HEAD...FETCH_HEAD` (any `>` lines =
      remote-only commits → STOP and surface). Push with `--force-with-lease` pinned to the fetched SHA — never a
      bare `--force`.
-7. **Refresh the GitNexus knowledge graph** (only if the project uses GitNexus). Invoke `gitnexus-cli` to run
-   `analyze --index-only`, syncing the graph to the shipped code (add `--embeddings` **only on the default
-   branch**; on a feature branch — where ship normally runs — omit it to preserve the default-branch embeddings,
-   which regenerate once the PR merges). Run unconditionally — no permission prompt. `--index-only` is a pure
-   index pass: no skill generation, no `CLAUDE.md` / `AGENTS.md` touch.
-8. Summarize what shipped and anything left for the user.
+7. Summarize what shipped and anything left for the user.
+   Do not run GitNexus analysis, indexing, or embeddings as ship cleanup, including in worktrees.
+   Index maintenance remains a separate user-requested task.

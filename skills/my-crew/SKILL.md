@@ -5,6 +5,9 @@ description: Coordinate supervised Orca agents for task DAGs and decision gates,
 
 # my-crew
 
+Read and apply [Jev decision routing](../my-workflow/references/decision-routing.md) at the judgment steps below.
+Check disclosure boundaries and Jev mode before any automatic call.
+
 Coordinate workers for the user's objective. The current session remains coordinator, routes questions and
 completions, and decides when the work is finished. For an Orca run, it also owns the Run.
 
@@ -21,16 +24,19 @@ track, coordinate, or return results, or when `crosscheck` requires a read-only 
 
 ## Read-only review lane
 
-1. Read `~/.agents/skills/my-workflow/references/agent-runtime.md`. Select the current agent tool and inherit
-   its current model by default. If the user selects another tool without a model, use that tool's configured
-   default. Honor a user-specified model or named subagent. If the named agent is not discoverable by the target
+1. Read `~/.agents/skills/my-workflow/references/agent-runtime.md`. Require the coding-agent selection from
+   `crosscheck`; if missing, ask under its per-stage selection rule before dispatch.
+   Use the selected tool's configured default model unless the user specified a model, even for the lead's own tool.
+   Resolve and report the actual model before launch. Honor a user-specified model or named subagent.
+   If the model cannot be resolved or the named agent is not discoverable by the target
    tool, report that instead of choosing another. A different tool requires an Orca
    window; a host-native subagent belongs to the current tool. For an Orca window, check the target tool's
-   configured default and use the version-matched guide's custom launch path when needed to preserve the selected
+   configured default and use the version-matched guide's custom launch path when needed to honor the selected
    model.
 2. If Orca-hosted and orchestration is reachable, use the supervised window path below with a single read-only
-   Task. Otherwise use the current host's native subagent adapter in `agent-runtime.md`; this provides a separate
-   context, not necessarily a separate terminal window. If the requested route is unavailable, say so and return
+   Task. Otherwise use the current host's native subagent adapter only if it supports the selected tool and model;
+   this provides a separate context, not necessarily a separate terminal window.
+   If the requested route is unavailable, say so and return
    to the caller.
 3. Give the reviewer raw evidence and the `crosscheck` review question, not the lead's conclusion. Forbid edits,
    staging, commits, pushes, and external mutations. Collect its findings and confirm the worker has ended
