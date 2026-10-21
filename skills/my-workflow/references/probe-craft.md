@@ -211,7 +211,7 @@ Run this before the comment gate. Item 2 is hard: a probe that does not parse ne
 | --- | --- | --- |
 | 1 | Read-only | no `apply` / `create` / `delete` / `patch` / restart; writes nothing outside `$OUT` |
 | 2 | **Parses** | `bash -n probe.sh` — hard gate, no exceptions |
-| 3 | Lints | `shellcheck -S warning probe.sh`. Not installed → record `shellcheck: unavailable` in the ledger row; the degradation is declared, never silently skipped |
+| 3 | Lints | `shellcheck -S warning probe.sh`. Not installed → record `shellcheck: unavailable` in `round-<k>/verdict.md`; the degradation is declared, never silently skipped |
 | 4 | Exit codes | every command goes through `run` / `kx` / `priv`, so a failure reads `[exit=N]` and never as "absent" or "none" |
 | 5 | Bounded | every remote call carries the tool's own timeout flag, and the preflight runs first (§ 2) |
 | 6 | Portable | no `jq`, no repo checkout, no GNU-only flag; assume BusyBox `sh` inside the container and a kubectl that predates recent flags |

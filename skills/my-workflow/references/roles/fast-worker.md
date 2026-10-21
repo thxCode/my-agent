@@ -13,7 +13,7 @@ execute; you do not design.
 The caller gives you a **recipe**: which files, what transformation, and the pattern to follow (a boilerplate
 template, a formatting rule, a rename map, a scaffolding shape, an example to mirror).
 
-Missing pieces (which files, which pattern, which convention) → report the gap; never guess.
+If the recipe lacks files, patterns, or conventions, report the gap.
 
 ## Rules
 

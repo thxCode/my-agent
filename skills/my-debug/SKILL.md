@@ -123,6 +123,6 @@ Root Cause from the artifact, and Phase 5 fills that same file in place rather t
    `Local guard feasible:` line, so re-entering on it would take the ordinary path and ask for the local
    reproduction that by construction does not exist.
 4. **Offer the next step** (user may decline both):
-   - **Compact, then build** — emit the three-line block per
+   - **Compact, then build** — follow the checkpoint and resume procedure in
      `~/.agents/skills/my-workflow/references/compaction.md`.
    - **Build now** — continue into `my-build` with this artifact as its target, keeping the current model.

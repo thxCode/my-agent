@@ -155,7 +155,7 @@ changes.
    top-to-bottom — clear, logical, self-consistent. Re-read the saved spec and repeat the spec content audit before
    declaring it done.
 5. **Offer the next step** (user may decline both and stop):
-   - **Compact, then build** — context heavy / want a clean slate. Emit the three-line block per
+   - **Compact, then build** — context heavy / want a clean slate. Follow the checkpoint and resume procedure in
      `~/.agents/skills/my-workflow/references/compaction.md`.
    - **Build now** — continue straight into `my-build` with this spec, keeping the current model (switching
      without compacting re-reads the full context — only suggest it if the user asks).

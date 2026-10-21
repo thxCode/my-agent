@@ -107,10 +107,9 @@ re-running generation from the new HEAD drifted **four** files (a `.proto`, a CR
 applyconfiguration). Nothing reports that: it is not a merge conflict, so the only gate that speaks up is CI's
 generated-artifact check, and by then the PR is pushed.
 
-```bash
-make generate            # or whatever the repo's codegen target is
-git status --porcelain   # must come back empty
-```
+Run the generator before committing. Review its changes against the pending fixes.
+Include required generated updates in those fixes. Run it again and require no further file changes;
+a dirty tree containing the pending fixes is expected.
 
 And this is not a two-window problem: a plain single-window rebase produces the same drift.
 

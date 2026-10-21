@@ -102,13 +102,14 @@ anything. The thread is read again only for **what is new since our last post** 
 new evidence, never recovered state.
 
 **Resuming does not always add a round.** `<k>` is the highest row in the *Diagnosis Ledger*, and an empty table
-means round 0 was never recorded. **That row's own `Sent:` and `Received:` decide where this run picks up** —
+means round 0 was never recorded. **The row's `Sent:`, `Received:`, and archived verdict decide where this run picks up** —
 opening `<k+1>` while `<k>` is still outstanding asks the reporter a question they already have:
 
 | Row `<k>` | This run resumes at | Because |
 | --- | --- | --- |
-| `Sent: —` | **4f**, with the drafted comment | it was written and never posted — post it, or leave it for the user |
-| `Sent: <d>`, `Received: —` | **4h**, looking for a reply | the question is outstanding; a second ask would double it |
+| Round 0 has `Sent: —` and its archived verdict records verification complete with no post needed | **5a**, assess the recorded evidence | no comment was drafted or sent |
+| `Sent: —`, with a drafted comment | **4f**, with that comment | it was written and never posted — post it, or leave it for the user |
+| `Sent: <timestamp>`, `Received: —` | **4h**, looking for a reply | the question is outstanding; a second ask would double it |
 | `Received:` filled | **4a**, opening `<k+1>` | that round is closed, and the next hypothesis is due |
 
 A second run never re-opens round 0, rewrites the header, or re-derives *Reported*.
@@ -203,8 +204,8 @@ the stronger one, and it becomes the next round's target.
 
 | The thread | Then round 0 also | Its ledger row |
 | --- | --- | --- |
-| leaves a field unpinned | **posts**, asking for exactly the missing fields — draft it through Phase 4 | `Sent: —` at draft; 4f stamps the date only if the post returns |
-| already carries the digest and the full log | **posts nothing** — the verification is the whole round | `Sent: —`, and what the verification settled as its verdict |
+| leaves a field unpinned | **posts**, asking for exactly the missing fields — draft it through Phase 4 | `Sent: —` at draft; 4f records the timestamp only if the post returns |
+| already carries the digest and the full log | **posts nothing** — the verification is the whole round | `Sent: —`; archive the verdict with `Verification complete; no post needed` |
 
 Round 0's row is drafted like every other round's: **`Sent:` stays `—` until 4f's post returns.** A row stamped
 at drafting time claims a comment the reporter may never have received, and 5a's 14-day clock would then run
@@ -303,7 +304,11 @@ Show the user the exact text and ask. Nothing has left the machine yet.
   ```sh
   gh issue comment <n> --repo <owner>/<repo> --body-file .claude/issues/<n>/round-<k>/comment.md
   ```
-  Stamp `Sent: <yyyy-mm-dd>` on the row as soon as the post returns.
+  Extract the comment ID from the returned URL's `issuecomment-<id>` fragment.
+  Read its `created_at` with `gh api repos/<owner>/<repo>/issues/comments/<id> --jq .created_at`.
+  Record the URL and timestamp in `round-<k>/verdict.md`.
+  Set the row's `Sent:` to that timestamp. If recovery is needed, locate that exact posted comment first;
+  do not substitute the local clock or a date-only value.
 
   **A terminal post goes through this same gate, and names its own file** — `undiagnosable.md` or
   `upstream-link.md`, never `comment.md`, which holds the round's probe comment byte for byte. It does **not**

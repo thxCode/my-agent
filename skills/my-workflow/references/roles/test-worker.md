@@ -16,7 +16,7 @@ The caller gives you one of:
 - a **browser scenario list** to drive through this host's browser bridge (load `browser-testing` first;
   it resolves the bridge, and reports rather than improvises when the host has none).
 
-Missing pieces (which command, which URL, which environment) → report the gap; never guess.
+If the recipe lacks a command, URL, or environment, report the gap.
 
 ## Rules
 

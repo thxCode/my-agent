@@ -51,8 +51,9 @@ GitNexus MCP tools), or finding a library/tool to adopt (a plain npm/PyPI/GitHub
 
 If `args` is empty or the question is vague (e.g. "what car should I buy" with no budget/use/region), **ask 2-3
 clarifying questions** first. This and the **mode gate** (step 1.5) are the designed *up-front* interaction
-points. In **auto mode** they are also the *last* ones — after the gate, run to completion unattended, recording
-any unresolved choice as an assumption (never block mid-run). In **manual-approve mode**, the per-round approval
+points. At kickoff, select the optional reviewer through `crosscheck`, or record that review is skipped.
+Persist the choice in `state.json`. If kickoff is headless and no choice was supplied, skip optional review.
+In **auto mode**, these are the last interactions. Continue unattended after kickoff. In **manual-approve mode**, the per-round approval
 gate (step 2) is an additional, designed interaction point. Outside these defined gates, never block.
 
 ## Operating Principles
@@ -174,9 +175,11 @@ list the skipped dimensions.
 
 **6.5 — Adversarial review.** Before returning, give the drafted report an independent read-only review.
 **Three gates, all must pass** — else note why on the digest's `cross-check:` line:
-- **Availability** — `my-crew` can collect and end a reviewer on the selected route. Default to the current
-  agent tool and model; honor a user-specified tool, model, or named subagent. Absent → `cross-check: unavailable`.
-- **Cost** — the governor verdict is `ok`/`warn`. `soft`/`hard` → `cross-check: skipped:cost`.
+- **Availability** — use the reviewer choice recorded at kickoff under `crosscheck`'s selection rule.
+  No choice or explicit skip → `cross-check: skipped:selection`. Use the selected tool's configured default model
+  unless the user specified one. `my-crew` must collect and end that reviewer; otherwise report `cross-check: unavailable`.
+- **Cost** — `ok`, `warn`, or `unknown` permits review. Note an unknown rate limit in the digest.
+  `soft` or `hard` → `cross-check: skipped:cost`.
 - **Report type** — the report is **load-bearing / code-grounded**: it carries `file:line` claims, drives a spec
   or implementation, or is otherwise high-stakes. Lightweight single-topic reports do **not** auto-trigger (a
   user may still force it via args). Not high-stakes → `cross-check: skipped:type`.
@@ -228,7 +231,7 @@ Every round, the orchestrator emits a short digest to the user **and** appends i
   findings:  <verified>/<total> verified  (+<new> this round)
   gaps:      <coverage gaps / open dimensions>
   cost:      5h <x>% · 7d <y>%  → <verdict>   (or "unknown")
-  cross-check: <n claims · m corrections folded | unavailable | skipped:cost | skipped:type>   (final round only)
+  cross-check: <n claims · m corrections folded | unavailable | skipped:selection | skipped:cost | skipped:type>   (final round only)
   next:      <continue | pivot:<new angle> | synthesize | stop:<reason>>
 ```
 

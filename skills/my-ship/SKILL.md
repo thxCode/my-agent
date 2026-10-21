@@ -166,9 +166,10 @@ Apply [commit signoff](../my-workflow/references/git-signoff.md) for every commi
        co-occurring with `#N` closes it, so "does **not** close #12" closes #12. Every sentence that
        records a gap is a candidate, which is precisely where this lands:
        ```bash
-       grep -icE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"   # must print 0
+       grep -inE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]' <<<"$body"   # inspect each match
        ```
-       Nonzero → rephrase to a non-closing verb or drop the `#`.
+       Keep a match only when it intentionally links an issue this PR fully resolves. Rephrase every other match
+       to a non-closing verb or drop the `#`. Require zero unintended closing links before posting.
    - **Match the house style** — a template names the sections, not how this project fills them. Read the
      latest merged PR (`gh pr list --state merged -L 1 --json body -q '.[0].body'`) for how much detail a
      reviewer expects and which `/kind` labels are real.
