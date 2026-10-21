@@ -25,29 +25,11 @@ For `my-*` and `crosscheck`, apply [workflow decision routing](../my-workflow/re
 
 - **API & Primitives Reference:** [references/api-and-primitives.md](references/api-and-primitives.md)
 - **Three Coding-Agent Playbooks (Routing, Bulk Triage, Verification):** [references/coding-agent-playbooks.md](references/coding-agent-playbooks.md)
-- **Multi-Agent Host Integration (9 Coding Agents, zsh Key & SSL Resolution):** [references/host-integration.md](references/host-integration.md)
+- **Host Integration:** [references/host-integration.md](references/host-integration.md). Read for host setup or authentication and certificate troubleshooting.
 
-## 1. Environment, `TYPESAFE_API_KEY` (`zsh`) & macOS SSL CA Resolution
+## 1. Environment
 
-The user provides `TYPESAFE_API_KEY` in their `zsh` environment. Coding agents often spawn non-interactive
-subshells that skip `~/.zshrc`.
-
-Two CA conditions break HTTPS on macOS. A `Python.framework` build can ship without its `cert.pem` link, and a
-stale `SSL_CERT_FILE` that names a missing file leaves the default context with zero roots. Either way every
-request fails with `CERTIFICATE_VERIFY_FAILED`.
-
-- **Bundled CLI (`~/.agents/skills/jev/scripts/jev_cli.py`):**
-  - Reads `TYPESAFE_API_KEY` from the process environment and falls back to `zsh -ic 'printf "%s" "${TYPESAFE_API_KEY:-}"'` (then `zsh -lc`) if unset.
-  - Builds an SSL context it can verify against. The interpreter default wins when no `ssl_cert_file` is configured and that default carries roots. Otherwise it tries `ssl_cert_file` from the mode config, then `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE` / `CURL_CA_BUNDLE`, then `certifi`, then common system bundles. The context is cached per process.
-- **Direct shell or Python SDK calls:** Export both variables without printing the secret to stdout:
-  ```bash
-  export TYPESAFE_API_KEY="${TYPESAFE_API_KEY:-$(zsh -ic 'printf "%s" "$TYPESAFE_API_KEY"' 2>/dev/null)}"
-  export SSL_CERT_FILE="${SSL_CERT_FILE:-$(python3 -c 'import certifi; print(certifi.where())' 2>/dev/null || echo /etc/ssl/cert.pem)}"
-  : "${TYPESAFE_API_KEY:?TYPESAFE_API_KEY is missing in environment and zsh config}"
-  ```
-- **Health check:** Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py doctor` to confirm `key_source`,
-  `ssl_source`, `ssl_ca_count`, and connectivity against `GET https://api.typesafe.ai/v1/models`. A `ssl_source`
-  of `none` with `ssl_ca_count` 0 means no usable bundle was found.
+Provide `TYPESAFE_API_KEY` in the process environment.
 
 ## 2. Mode Switch (`jev init` | `jev on` | `jev off` | `jev status`)
 
@@ -57,7 +39,7 @@ Persist project or global reflex mode in `.claude/jev-mode.json` via `jev_cli.py
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode init     # Write the default config
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode on       # Enable System 1 pre-routing & verification
 python3 ~/.agents/skills/jev/scripts/jev_cli.py mode off      # Disable automatic Jev offloading (baseline comparison)
-python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status   # Check current mode, CA source, and thresholds
+python3 ~/.agents/skills/jev/scripts/jev_cli.py mode status   # Check current mode and thresholds
 ```
 
 When mode is `on`, run **Position 1** before heavy task dispatch and **Position 3** before finalizing non-trivial

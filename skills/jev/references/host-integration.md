@@ -40,6 +40,18 @@ To guarantee zero-friction authentication and TLS verification in every agent:
    ```
 3. Never echo or log `$TYPESAFE_API_KEY` in terminal output, commit messages, or skill artifacts.
 
+For a direct shell or Python SDK call on a `zsh` host, export the variables without printing the secret:
+
+```bash
+export TYPESAFE_API_KEY="${TYPESAFE_API_KEY:-$(zsh -ic 'printf "%s" "$TYPESAFE_API_KEY"' 2>/dev/null)}"
+export SSL_CERT_FILE="${SSL_CERT_FILE:-$(python3 -c 'import certifi; print(certifi.where())' 2>/dev/null || echo /etc/ssl/cert.pem)}"
+: "${TYPESAFE_API_KEY:?TYPESAFE_API_KEY is missing in environment and zsh config}"
+```
+
+Run `python3 ~/.agents/skills/jev/scripts/jev_cli.py doctor` to check `key_source`, `ssl_source`, `ssl_ca_count`,
+and connectivity against `GET https://api.typesafe.ai/v1/models`. An `ssl_source` of `none` with `ssl_ca_count` 0
+means no usable bundle was found.
+
 ## 3. Configuring `.claude/jev-mode.json` (Project & Global Switch)
 
 `jev_cli.py` reads `.claude/jev-mode.json` in the current project root first, falling back to `~/.claude/jev-mode.json`
