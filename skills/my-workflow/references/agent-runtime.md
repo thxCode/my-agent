@@ -74,8 +74,7 @@ belong to Orca, so treat them as a host signal only: command syntax still comes 
   agents may live in `~/.codex/agents/`, but the shared role contract below is sufficient when none is installed.
 - **Kimi Code:** use its Agent/Task facilities and collect the corresponding task output before synthesizing.
 - **Qwen Code:** use its Agent/Teams facilities and collect the corresponding task output before synthesizing.
-- **OMP:** use its `task` agent facility and collect the task output before synthesizing. A named agent must be
-  discoverable in OMP's task-agent catalog; its skill catalog is a separate discovery surface.
+- **Pi:** no native subagent facility; use only a fallback the selected workflow permits.
 - **MiniMax Code (`mcode`):** use the native subagent tools exposed by the active runtime and collect their
   results before synthesizing. Verify that a requested named role is discoverable; shared skills do not
   install native roles. If the tools or required collection/termination controls are absent, report that

@@ -18,12 +18,12 @@ All hosts share `~/.agents/skills/jev/SKILL.md` (either directly or via the syml
 | **MiniMax Code (`mcode`)** | `~/.agents/skills/jev` (`user-agents` / `~/.claude/skills`) | `/jev <task>` or via `/skills` | `"use the jev skill to ..."` |
 | **Qwen Code** | `~/.qwen/skills/jev` -> `~/.agents/skills/jev` | `/jev <task>` | `"use the jev skill to ..."` |
 | **GitHub Copilot** | `~/.agents/skills/jev` / `.github/skills/jev` / `.claude/skills/jev` | `/jev <task>` (Agent mode / CLI) | `"use the jev skill (~/.agents/skills/jev/SKILL.md) to ..."` |
-| **Oh-my-pi (`omp`)** | `~/.agents/skills/jev` (native agents skill provider) | `/skill:jev <task>` | `"use the jev skill to ..."` |
+| **Pi (`pi`)** | `~/.agents/skills/jev` (built-in Agent Skills location) | `/skill:jev <task>` | `"use the jev skill to ..."` |
 
 ## 2. Ensuring `TYPESAFE_API_KEY` & SSL Certificates Work Across All Host Subshells
 
 Different coding agents launch shell commands differently:
-- **Claude Code, Codex, Kimi Code, Qwen Code, OMP** typically run `/bin/zsh -c` or `/bin/sh -c` (non-interactive, non-login), which reads `~/.zshenv` (for `zsh`) but skips `~/.zshrc`.
+- **Claude Code, Codex, Kimi Code, Qwen Code, Pi** typically run `/bin/zsh -c` or `/bin/sh -c` (non-interactive, non-login), which reads `~/.zshenv` (for `zsh`) but skips `~/.zshrc`.
 - **Antigravity, ZCode, MiniMax Code, GitHub Copilot** may sanitize or inherit only the parent daemon environment.
 - **macOS `Python.framework` SSL root certificate quirk:** Official macOS Python builds look for `/Library/Frameworks/Python.framework/Versions/<ver>/etc/openssl/cert.pem`, which is absent unless linked (`x509_ca == 0`). A stale `SSL_CERT_FILE` that names a missing file causes the same symptom.
 

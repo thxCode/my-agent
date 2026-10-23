@@ -4,7 +4,7 @@
 Universal CLI and batch runner for TypeSafe AI's System One model (Jev).
 Zero external dependencies (Python 3.10+ standard library only).
 Works across Claude Code, Codex, Kimi Code, Antigravity, ZCode, MiniMax Code,
-Qwen Code, GitHub Copilot, and Oh-my-pi (OMP).
+Qwen Code, GitHub Copilot, and Pi.
 """
 
 from __future__ import annotations

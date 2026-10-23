@@ -4,37 +4,38 @@ The shared workflows use capabilities rather than a fixed host list. This refere
 instruction paths, skill discovery, invocation syntax, and MCP configuration locations. Permission setup belongs in
 [agent-runtime.md](agent-runtime.md).
 
-## Existing host links
-
-```text
-~/.claude/CLAUDE.md             -> ~/.agents/AGENTS.md
-~/.claude/skills                -> ~/.agents/skills
-~/.claude/agents                -> ~/.agents/agents
-~/.claude/statusline.sh         -> ~/.agents/statusline-claude.sh
-~/.kimi-code/statusline.sh      -> ~/.agents/statusline-kimi.sh
-~/.gemini/config/skills         -> ~/.agents/skills
-```
-
-`AGENTS.md` is the canonical shared instruction file. Global loading depends on the host's supported paths;
-Qwen's project-only boundary is described below.
-
-One consequence lands on this repository specifically. Opening a session here now also picks up
-`~/.agents/AGENTS.md` as *project* instructions, because this is a repository with an `AGENTS.md`. That is the same file the user-level link points at, and Claude skips an `AGENTS.md` it has
-already loaded through a link, so the content arrives once.
-
 ## Install the links
 
-Link each host to the shared root. Claude and Qwen need links, Codex, OMP, mcode, and ZCode need one each for their
-instructions files, and Kimi needs one for its status line script:
+Only Claude, Kimi, and Antigravity need links into the shared root, and each host links something different:
 
-Install [OMP](https://github.com/can1357/oh-my-pi) before creating its link, for example with
-`brew install can1357/tap/omp`; its user configuration directory must exist. OMP discovers
-`~/.agents/skills` directly through its agents skill provider.
+```text
+# Claude Code
+~/.claude/CLAUDE.md      -> ~/.agents/AGENTS.md
+~/.claude/skills         -> ~/.agents/skills
+~/.claude/agents         -> ~/.agents/agents
+~/.claude/statusline.sh  -> ~/.agents/statusline-claude.sh
 
-The status line link is required whenever Claude's `settings.json` points `statusLine` at
-`~/.claude/statusline.sh`; without it the status line silently fails. Kimi's link is
-likewise required by the `[status_line]` command in `tui.toml`; see
+# Kimi Code
+~/.kimi-code/statusline.sh -> ~/.agents/statusline-kimi.sh
+
+# Antigravity
+~/.gemini/config/skills  -> ~/.agents/skills
+```
+
+Every other host needs no link. Pi, for example, reads `~/.agents/skills/` directly as a built-in Agent
+Skills location.
+
+Claude's status line link is required whenever `settings.json` points `statusLine` at
+`~/.claude/statusline.sh`; without it the status line silently fails. Kimi's link is likewise required by
+the `[status_line]` command in `tui.toml`; see
 [Kimi Code helpers](../../../README.md#kimi-code-helpers).
+
+`AGENTS.md` is the canonical shared instruction file; global loading depends on the host's supported paths.
+
+One consequence lands on this repository specifically. Opening a session here also picks up
+`~/.agents/AGENTS.md` as *project* instructions, because this is a repository with an `AGENTS.md`. That is
+the same file the user-level link points at, and Claude skips an `AGENTS.md` it has already loaded through
+a link, so the content arrives once.
 
 ## Invocation and MCP
 
@@ -47,7 +48,7 @@ and MCP schemas differ:
 | [Codex](https://github.com/openai/codex) | `$my-spec …` | `~/.codex/config.toml` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
 | [Kimi Code](https://code.kimi.com) | `/skill:my-spec …` | `~/.kimi-code/mcp.json` | no per-tool `defer_loading`; use server enablement and tool allow/deny lists |
 | [Qwen Code](https://github.com/QwenLM/qwen-code) | `/my-spec …` | `~/.qwen/settings.json`, under `mcpServers` | no per-tool `defer_loading`; HTTP servers use `httpUrl`, not `url` |
-| [OMP](https://github.com/can1357/oh-my-pi) | `/skill:my-spec …` | `~/.omp/agent/mcp.json` | built-in tools and skills; use OMP's own configuration |
+| [Pi](https://pi.dev) | `/skill:my-spec …` | `~/.pi/agent/mcp.json` | built-in tools and skills; use Pi's own configuration |
 | [MiniMax Code](https://agent.minimax.cn/docs/cli/quick-start) | `/my-spec …` or `/skills` | inspect `/mcp` and `/doctor` for the active runtime | use the current runtime's exposed tools and skills |
 | [ZCode](https://github.com/zai-org/ZCode) | `/skill my-spec …` or `/skill` | `~/.zcode/cli/config.json`, under `mcp.servers` | use the current runtime's exposed tools and skills |
 | [Antigravity](https://antigravity.google) (`agy`) | `/my-spec …` | `~/.gemini/mcp_config.json` | progressive disclosure for skills and rules; built-in subagents and project `.agents/agents` |
@@ -68,9 +69,8 @@ Invoke an installed skill with `/my-spec …` or select it through `/skills`. Ke
 explicit-only routing rules even when a host does not enforce `disable-model-invocation` frontmatter.
 
 Project instructions use the workspace's `AGENTS.md`. Global instructions use `<data-dir>/AGENTS.md`;
-the default data directory is `~/.minimax`, overridable with `MINIMAX_DATA_DIR`. Create that directory if
-needed, then use the `~/.minimax/AGENTS.md` link above; with a custom data directory, put the link there instead.
-Client settings and credentials remain in the host's own data directory. Inspect MCP entries through `/mcp`.
+the default data directory is `~/.minimax`, overridable with `MINIMAX_DATA_DIR`. Client settings and
+credentials remain in the host's own data directory. Inspect MCP entries through `/mcp`.
 
 Source: [CLI configuration](https://agent.minimax.cn/docs/cli/configuration). External shared-root discovery, global instruction
 loading, and slash skill invocation are also present in the installed CLI package; recheck its catalog and
