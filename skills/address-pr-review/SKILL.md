@@ -1,15 +1,14 @@
 ---
 name: address-pr-review
-description: "Address existing pull-request review feedback: validate comments, make justified fixes, and respond."
+description: "Address existing pull-request review feedback: prioritize engineering fixes, list upgrade compatibility risks for user decisions, and respond."
 ---
 
 # Address PR review feedback
 
-Take the review comments **already left** on a pull request and turn them into correct, minimal,
-well-tracked changes. The hard part is not editing files — it is **deciding which comments are right**
-and **landing the fixes without making the git history ugly**. Bot reviewers (Copilot, CodeRabbit, etc.)
-produce confident-sounding comments that are sometimes wrong; never apply a comment without verifying it
-against the source first.
+Turn existing pull request comments into verified, minimal engineering fixes.
+Focus on simplicity, performance, resource efficiency, boundary conditions, and security.
+Keep upgrade compatibility risks in a separate list for the user's decision before fixing them.
+Bot reviewers can be wrong. Verify each comment against the source before changing code.
 
 - **Language.** Write every PR-facing string — ordinary PR conversation comments, review-thread replies, PR title/description edits — in **English**;
   talk to the user in their configured language. Step 7 is where the two get confused, and has the reason.
@@ -62,24 +61,56 @@ sum is what makes a dropped page visible.
 
 ### 3. Triage — verify every comment against the source (the important step)
 
-For each comment, **open the cited file/line and decide before touching anything**:
+For each comment, open the cited file and line before changing code.
+Check its evidence, reachable inputs, and effect on the current implementation.
+Prioritize these engineering concerns within the reviewed change:
 
-- **Real bug** → note the exact fix and which commit it belongs to.
+- Simplicity: remove unnecessary complexity or duplication when the change has a concrete benefit. Avoid preference-only rewrites.
+- Performance and efficiency: check costly work, repeated operations, allocations, resource use, and cleanup. Separate measured costs from inferred costs.
+- Boundary conditions: check empty inputs, limits, invalid states, failures, cancellation, and concurrency where relevant.
+- Security: check input validation, access control, secret exposure, and unsafe operations where relevant.
+
+Assign each finding a verdict:
+
+- Engineering issue → note the evidence, smallest justified fix, verification, and owning commit.
+- Upgrade compatibility risk → add it to the list below, even when confirmed. Evidence alone does not authorize compatibility work.
 - **False positive** → note why; record the reasoning in the ordinary PR conversation comment instead of changing code.
 - **Out of scope / opinion** → flag for the user, do not silently act.
+
+Treat a finding as an upgrade compatibility risk when it concerns installations upgrading from an older version.
+Examples include existing data, saved configuration, renamed fields, removed interfaces, changed defaults, or mixed versions during rollout.
+If a comment covers both an engineering defect and upgrade compatibility, split it into linked findings.
+Fix the independent engineering defect. Keep the compatibility portion pending the user's decision.
+If the fixes cannot be separated, present the combined change for that decision.
+State any security or data-loss impact clearly; do not hide it under a generic compatibility label.
+
+Collect compatibility risks into one numbered list. For each item, include:
+
+- The comment and code location, affected versions or upgrade path, and triggering conditions. Mark unknown details explicitly.
+- The expected impact and supporting evidence. Distinguish confirmed behavior from a plausible risk.
+- The smallest proposed remedy, its scope or tradeoff, and your recommendation.
+
+After preparing the list, ask the user which items to resolve: all, selected item numbers, or none.
+Do not implement compatibility work before that decision. Do not treat silence as approval.
+If earlier instructions explicitly cover an item, record that authorization instead of asking again.
+Continue independent engineering fixes while waiting. Keep pending or declined compatibility threads open.
+If there are no compatibility risks, omit the question.
 
 Common false positives to watch for:
 - Library-semantics claims (e.g. "this `merge`/`reduce` precedence is backwards") — confirm against the
   actual library docs/behavior; reversing a correct call *introduces* a bug.
 - "This will crash on input X" — check whether input X is actually reachable / validated upstream.
 
-While triaging, look for the **same root cause elsewhere** the reviewer missed (e.g. a rendering bug
-flagged in two templates often exists in a third). Fix all instances for consistency, and say so.
+While triaging, check related code for the same root cause within the review's scope.
+Apply the same verdict and compatibility decision rules to each additional finding.
 
 Present a short triage table (id · location · verdict · action) before editing.
+Keep compatibility items visible in this table and reference their numbered list.
+When splitting a comment, retain its source id so step 2's counts remain traceable.
 
-### 4. Fix the real issues — surgically
+### 4. Fix engineering issues and approved compatibility items — surgically
 
+- Implement verified engineering fixes and compatibility items the user has authorized.
 - Match the surrounding style and existing idioms (e.g. reuse a helper/pattern the file already uses).
 - Touch only what the comment requires; no drive-by refactors.
 - Add or adjust a focused test that locks in the fix, especially for logic bugs.
@@ -169,8 +200,8 @@ Avoid a noisy standalone "address review comments" commit unless the user wants 
 **Re-read all three buckets first** — step 2's calls, paged to exhaustion again — and diff the result
 against what you triaged. Fixing takes time, and the PR moved while you worked. Three things surface:
 
-- **New comments** — a reviewer or bot added them since step 2. Triage them (step 3); if real, loop back
-  through steps 4–6 before posting the ordinary comment.
+- New comments — a reviewer or bot added them since step 2. Apply step 3, including its compatibility decision rule.
+  Loop through steps 4–6 for engineering fixes and authorized compatibility work before posting the ordinary comment.
 - **Threads someone else already resolved** — record their state, but leave every thread unchanged.
 - **Comments the first pass never saw** — it stopped a page short. Triage these too.
 
@@ -273,6 +304,8 @@ git push --force-with-lease=<branch>:<expected-remote-sha> origin HEAD:<branch>
 End with: what was fixed (and where), what was rejected as a false positive (and why), the resulting
 git history, the threads resolved and the ones deliberately left open, and any items deferred to the
 user. Be explicit about anything not yet pushed.
+Include the upgrade compatibility list with each item's status: pending decision, approved, fixed, or declined.
+Do not report pending or declined compatibility items as fixed or resolved.
 
 After a **fixup** run, name the fixups still standing and where they get folded: a repo that squash-merges
 absorbs them at merge, so nothing more is needed; a repo that rebase- or merge-commits needs them folded
