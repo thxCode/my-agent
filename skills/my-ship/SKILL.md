@@ -103,28 +103,30 @@ Apply [commit signoff](../my-workflow/references/git-signoff.md) for every commi
 
    **No target → skip.**
 3. Present everything changed (target if any, tests, overview, docs) for **review**.
-4. On confirmation, **commit with `--signoff`** the finalization changes (group logically; stage only what you changed;
-   descriptive messages). Run `git-signoff.md`'s `new HEAD` check after each commit.
+4. On confirmation, **commit with `--signoff`** the finalization changes. Group logically, stage only what you changed,
+   and include 1 to 5 detail bullets (at most 15 words each) in every commit body.
+   Run `git-signoff.md`'s `new HEAD` check after each commit.
    Stage the `Status: Shipped` edit **only if the target is committed (`specs/`)**.
    **Nothing stageable → skip the commit and say so.**
 5. **Tidy the branch history — evaluate on every ship, before pushing.** A build lands one commit per task; ship
    adds finalization commits. Fold the *noise* so the PR reads as a clean, linear story:
    - Inspect first: `git log --oneline <base>..HEAD`.
-     Run `git-signoff.md`'s history check on `<base>..HEAD`; include missing signoffs in the proposed rewrite.
+     Run `git-signoff.md`'s history check on `<base>..HEAD`; include missing signoffs or invalid detail lists in the proposed rewrite.
      Use Jev to suggest logical fold candidates from the commit log and diff. Verify ownership against Git history.
-   - **Fold noise into its logical owner**, tidying messages — WIP / fixup / typo / ship micro-commits belong
-     squashed into the commit they fix. **Preserve the per-task narrative** — do **not** flatten the whole branch
-     into one commit (that destroys the story `my-build` recorded). Target-driven → also check the target reads
-     cleanly.
+   - **Fold noise into its logical owner and tidy every commit message.** Squash WIP, fixup, typo, and ship
+     micro-commits into the commit they fix. Rewrite each resulting commit message so its body has 1 to 5 detail
+     bullets (at most 15 words each) summarizing the tidied work in that commit. Keep any `Task N of <target>`
+     trailer intact. **Preserve the per-task narrative** — do **not** flatten the whole branch into one commit.
+     Target-driven → also check the target reads cleanly.
    - **Propose the rewritten history, wait for confirmation.** On approval, execute non-interactively
      (interactive rebase is unavailable here):
      ```bash
      # single commit, or all fixes belong to the tip:
-     git add <task-files> && git commit --amend --no-edit --signoff
-     # fixes belong to specific earlier commits:
-     git commit --signoff --fixup=<target-sha> -- <files>
+     git add <task-files> && git commit --amend --signoff -F <msg-file>
+     # fixes belong to specific earlier commits (rewrites target commit message with tidied detail bullets):
+     git commit --signoff -m "amend! $(git log -1 --format=%s <target-sha>)" -m "$(cat <msg-file>)" -- <files>
      GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --signoff <base>
-     # only missing signoffs, with no other history changes:
+     # only missing signoffs (messages already carry valid detail bullets):
      git rebase --force-rebase --signoff <base>
      ```
      These rebase examples assume linear history. If merges exist, preserve their topology per `git-signoff.md`.
@@ -145,10 +147,10 @@ Apply [commit signoff](../my-workflow/references/git-signoff.md) for every commi
      Commits with no trailer (ship's own finalization commits) sort last, keeping their relative order.
      **A conflict here means `Owns:` overlapped and the tasks were never truly independent** — `git rebase
      --abort`, keep completion order, and surface it: that overlap is a worse finding than the ordering.
-   - After every history change, repeat the signoff checks on the resulting commit objects.
+   - After every history change, repeat `git-signoff.md`'s checks on the resulting commit objects.
 6. **Ask whether to push the branch and open a PR.** If yes, push and create it.
    - Before any push, require a clean `git-signoff.md` history check on `<base>..HEAD`.
-     Missing signoffs return to step 5's proposed repair and approval; do not push until repaired and checked.
+     Missing signoffs or invalid detail lists return to step 5's proposed repair and approval; do not push until repaired and checked.
    - **PR body — write to the repo's PR template when it has one.** Find it:
      ```bash
      git ls-files | grep -i pull_request_template

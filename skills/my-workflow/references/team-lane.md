@@ -58,7 +58,7 @@ relay a plan-approval gate, run that task sequentially in the lead session.
   returned work, and own every stage/commit action.
 - Verify each result against its task before checking it off. Commit completed tasks in completion order; a valid
   topological order need not match task numbering.
-  Use `git commit --signoff` and run `git-signoff.md`'s `new HEAD` check for every task commit.
+  Format every task commit with `my-build` Phase 5.2's template (1 to 5 detail bullets, at most 15 words each, plus the `Task N of` trailer). Use `git commit --signoff` and run `git-signoff.md`'s `new HEAD` check for every task commit.
 - A request to edit outside `Owns:` is the contract working. Widen the task, create a dependent task, or reconcile
   the plan before redispatching.
 - Run whole-tree rewriting tools only after all workers are quiet. Workers use read-only or path-scoped checks.

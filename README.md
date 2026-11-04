@@ -103,7 +103,7 @@ calibrates effort against evidence.
 
 Every `my-*` entry applies `decision-routing.md` to bounded judgments through `jev`.
 It respects Jev mode and disclosure restrictions, and falls back to the lead when results are uncertain or unavailable.
-`my-build` and `my-ship` use `git-signoff.md` to verify commit trailers after creation and history changes.
+`my-build` and `my-ship` use `git-signoff.md` to verify commit detail bullets and signoff trailers after creation and history changes.
 `my-ship` does not refresh GitNexus indexes at completion, including in worktrees.
 
 ## Multi-agent boundary

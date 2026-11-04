@@ -184,12 +184,13 @@ Depth matches the task's risk:
      ```
      <type>(optional scope): <title in lowercase>
 
-     - <change, one simple point per bullet>
+     - <work detail, up to 15 words>
      - ...
 
      Task <task index> of <target name>.
      ```
      - `type` ∈ `fix|feat|build|chore|ci|docs|style|refactor|perf|test`.
+     - Include 1 to 5 detail bullets summarizing the task's changes. Keep each bullet to at most 15 words.
      - `<task index>` = the task's ordinal; `<target name>` = the hyphenated spec/debug title (e.g.
        `Task 3 of user-auth-flow`).
 3. **Compaction checkpoint** (tasks still pending) — apply
